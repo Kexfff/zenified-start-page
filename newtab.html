@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <title>New Tab</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#main" aria-label="Zenified home">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span>zenified</span>
+      </a>
+
+      <nav class="top-actions" aria-label="Page tools">
+        <button class="quiet-button" id="bookmarksButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.75 4.75A1.75 1.75 0 0 1 8.5 3h7a1.75 1.75 0 0 1 1.75 1.75V20l-5.25-3.1L6.75 20V4.75Z"/></svg>
+          <span>Bookmarks</span>
+          <kbd>B</kbd>
+        </button>
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Customize start page" title="Customize">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/></svg>
+        </button>
+      </nav>
+    </header>
+
+    <main id="main" class="page-shell">
+      <section class="hero" aria-labelledby="greeting">
+        <button class="clock-block" id="clockToggle" type="button" title="Toggle 12/24-hour time" aria-label="Toggle 12/24-hour time">
+          <span id="clock" class="clock">00:00</span>
+          <span id="date" class="date">Monday, July 13</span>
+        </button>
+        <h1 id="greeting">Good evening.</h1>
+        <p class="hero-subtitle" id="heroSubtitle">Where would you like to go?</p>
+      </section>
+
+      <section class="search-section" aria-label="Web search">
+        <form class="search-shell" id="searchForm" autocomplete="off">
+          <div class="engine-picker">
+            <button id="engineButton" class="engine-button" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="engine-glyph" id="engineGlyph">D</span>
+              <span class="sr-only" id="engineLabel">DuckDuckGo</span>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 8 3 3 3-3"/></svg>
+            </button>
+            <div class="engine-menu popover" id="engineMenu" role="listbox" aria-label="Search engine"></div>
+          </div>
+          <input id="searchInput" type="search" spellcheck="false" enterkeyhint="search" placeholder="Search the web or enter an address" aria-label="Search the web or enter an address">
+          <span class="search-hint" aria-hidden="true"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+          <button class="search-submit" type="submit" aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+          </button>
+        </form>
+      </section>
+
+      <section class="shortcuts-section" aria-labelledby="shortcutsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Your space</p>
+            <h2 id="shortcutsTitle">Shortcuts</h2>
+          </div>
+          <button class="text-button" id="addShortcutTop" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg>
+            Add shortcut
+          </button>
+        </div>
+        <div class="shortcut-grid" id="shortcutGrid"></div>
+      </section>
+
+      <section class="widget-grid" aria-label="Widgets">
+        <article class="widget focus-widget">
+          <div class="widget-copy">
+            <div class="widget-heading">
+              <span class="widget-icon">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v6l3.5 2M9 3h6M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/></svg>
+              </span>
+              <span>Focus</span>
+            </div>
+            <strong id="focusTime">25:00</strong>
+            <span id="focusStatus">Ready when you are</span>
+          </div>
+          <div class="focus-controls">
+            <button class="round-action" id="focusReset" type="button" aria-label="Reset focus timer" title="Reset timer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8V4m0 0h4M5 4l3.2 3.2A7 7 0 1 1 6 15"/></svg>
+            </button>
+            <button class="focus-toggle" id="focusToggle" type="button" aria-label="Start focus timer">
+              <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
+              <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"/></svg>
+            </button>
+          </div>
+          <div class="focus-progress" id="focusProgress" aria-hidden="true"></div>
+        </article>
+
+        <article class="widget note-widget">
+          <div class="widget-heading">
+            <span class="widget-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 5h6M9 13h4"/></svg>
+            </span>
+            <span>Quick note</span>
+            <span class="save-status" id="noteStatus">Saved locally</span>
+          </div>
+          <textarea id="quickNote" maxlength="500" placeholder="Leave a thought for later…" aria-label="Quick note"></textarea>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="palette-dot" aria-hidden="true"></span>
+      <span id="paletteStatus">Following system palette</span>
+      <span class="footer-separator">·</span>
+      <span>Press <kbd>/</kbd> to search</span>
+    </footer>
+
+    <div class="scrim" id="scrim" hidden></div>
+
+    <aside class="drawer bookmarks-drawer" id="bookmarksDrawer" aria-labelledby="bookmarksTitle" aria-hidden="true">
+      <div class="drawer-header">
+        <div>
+          <p class="eyebrow">Firefox library</p>
+          <h2 id="bookmarksTitle">Bookmarks</h2>
+        </div>
+        <button class="icon-button" data-close-drawer type="button" aria-label="Close bookmarks">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+        </button>
+      </div>
+      <label class="drawer-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+        <input id="bookmarkSearch" type="search" placeholder="Find a bookmark" autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+      <div class="bookmark-content" id="bookmarkContent">
+        <div class="empty-state compact">
+          <span class="loader"></span>
+          <p>Loading your library…</p>
+        </div>
+      </div>
+      <div class="drawer-footer"><span id="bookmarkCount">0 bookmarks</span><span>Private to your browser</span></div>
+    </aside>
+
+    <aside class="drawer settings-drawer" id="settingsDrawer" aria-labelledby="settingsTitle" aria-hidden="true">
+      <div class="drawer-header">
+        <div>
+          <p class="eyebrow">Make it yours</p>
+          <h2 id="settingsTitle">Customize</h2>
+        </div>
+        <button class="icon-button" data-close-drawer type="button" aria-label="Close settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+        </button>
+      </div>
+      <div class="settings-content">
+        <section class="settings-group" aria-labelledby="themeHeading">
+          <div class="settings-label">
+            <div><h3 id="themeHeading">Color theme</h3><p>Auto borrows the active Zen or Firefox palette.</p></div>
+            <span class="sync-badge" id="syncBadge"><span></span>Auto</span>
+          </div>
+          <div class="theme-grid" id="themeGrid">
+            <button class="theme-card" data-theme-choice="auto" type="button">
+              <span class="theme-preview preview-auto"><i></i><i></i><i></i></span>
+              <span>Auto</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="amoled" type="button">
+              <span class="theme-preview preview-amoled"><i></i><i></i><i></i></span>
+              <span>AMOLED</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="aurora" type="button">
+              <span class="theme-preview preview-aurora"><i></i><i></i><i></i></span>
+              <span>Aurora</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="dawn" type="button">
+              <span class="theme-preview preview-dawn"><i></i><i></i><i></i></span>
+              <span>Dawn</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="searchHeading">
+          <div class="settings-label"><div><h3 id="searchHeading">Search engine</h3><p>Choose where your searches begin.</p></div></div>
+          <div class="select-shell">
+            <select id="engineSelect" aria-label="Default search engine"></select>
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 8 3 3 3-3"/></svg>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="clockHeading">
+          <div class="settings-label"><div><h3 id="clockHeading">Clock</h3><p>Pick the format that feels natural.</p></div></div>
+          <div class="segmented" id="clockFormat" role="group" aria-label="Clock format">
+            <button type="button" data-format="24">24 hour</button>
+            <button type="button" data-format="12">12 hour</button>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+
+    <dialog class="shortcut-dialog" id="shortcutDialog">
+      <form id="shortcutForm" method="dialog">
+        <div class="dialog-header">
+          <div><p class="eyebrow">Shortcut</p><h2 id="shortcutDialogTitle">Add a new place</h2></div>
+          <button class="icon-button" id="closeShortcutDialog" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+          </button>
+        </div>
+        <input id="shortcutId" type="hidden">
+        <label class="field"><span>Name</span><input id="shortcutName" name="name" maxlength="28" placeholder="e.g. Read later" required></label>
+        <label class="field"><span>Address</span><input id="shortcutUrl" name="url" inputmode="url" placeholder="https://example.com" required></label>
+        <p class="field-error" id="shortcutError" role="alert"></p>
+        <div class="dialog-actions">
+          <button class="danger-button" id="deleteShortcut" type="button">Delete</button>
+          <span></span>
+          <button class="secondary-button" id="cancelShortcut" type="button">Cancel</button>
+          <button class="primary-button" type="submit">Save shortcut</button>
+        </div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
