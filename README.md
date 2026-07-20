@@ -11,8 +11,9 @@ Requires Firefox 142 or a current Zen Browser release. This baseline supports Mo
 - Centered, Editorial, and Compact page layouts
 - Editable, draggable shortcuts with direct-from-site favicons and an optional large add tile
 - Searchable Firefox bookmarks drawer
+- Ranked local suggestions from bookmarks and browser history
 - 12/24-hour clock, focus timer, and locally saved quick note
-- Responsive layout and keyboard shortcuts (`/`, `Ctrl/Cmd+K`, `B`, and `Esc`)
+- Type anywhere to search, plus keyboard shortcuts (`/`, `Ctrl/Cmd+K`, `Alt+B`, and `Esc`)
 
 ## Widget ideas
 
@@ -33,4 +34,4 @@ For a permanent install, package the repository contents as a ZIP and sign it th
 
 ## Privacy
 
-The extension does not collect or transmit data for analytics or external processing. Shortcuts, preferences, notes, and timer state use Firefox extension storage. Bookmark access is used only to render the local bookmarks drawer. Shortcut favicons are requested directly from the shortcut's own HTTPS site, never from a third-party icon service. Search text is sent only to the selected search provider after submission.
+The extension does not collect or transmit data for analytics or external processing. Shortcuts, preferences, notes, and timer state use Firefox extension storage. Bookmark and history access is used locally for the bookmarks drawer and search suggestions; those records never leave the browser. Shortcut favicons are requested directly from the shortcut's own HTTPS site, never from a third-party icon service. Search text is sent only to the selected search provider after submission.

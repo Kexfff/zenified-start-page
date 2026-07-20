@@ -78,6 +78,7 @@ const clone = value => JSON.parse(JSON.stringify(value));
 let state = clone(DEFAULT_STATE);
 let bookmarkTree = null;
 let flatBookmarks = [];
+let bookmarkLoadPromise = null;
 let activeDrawer = null;
 let focusInterval = null;
 let noteSaveTimer = null;
@@ -85,6 +86,10 @@ let toastTimer = null;
 let activeDragId = null;
 let dragStartOrder = "";
 let pointerDragId = null;
+let suggestionTimer = null;
+let suggestionRequestId = 0;
+let searchSuggestions = [];
+let activeSuggestionIndex = -1;
 
 const elements = {
   root: document.documentElement,
@@ -94,6 +99,8 @@ const elements = {
   clockToggle: $("#clockToggle"),
   searchForm: $("#searchForm"),
   searchInput: $("#searchInput"),
+  searchSuggestions: $("#searchSuggestions"),
+  suggestionList: $("#suggestionList"),
   engineButton: $("#engineButton"),
   engineGlyph: $("#engineGlyph"),
   engineLabel: $("#engineLabel"),
@@ -420,6 +427,7 @@ function setSearchEngine(id) {
 
 function toggleEngineMenu(force) {
   const shouldOpen = force ?? !elements.engineMenu.classList.contains("open");
+  if (shouldOpen) closeSearchSuggestions();
   elements.engineMenu.classList.toggle("open", shouldOpen);
   elements.engineButton.setAttribute("aria-expanded", String(shouldOpen));
 }
@@ -451,6 +459,7 @@ function looksLikeAddress(query) {
 
 function handleSearch(event) {
   event.preventDefault();
+  closeSearchSuggestions();
   const query = elements.searchInput.value.trim();
   if (!query) return;
 
@@ -475,6 +484,249 @@ function handleSearch(event) {
 
   const engine = SEARCH_ENGINES[state.searchEngine] || SEARCH_ENGINES.duckduckgo;
   location.assign(`${engine.url}${encodeURIComponent(query)}`);
+}
+
+function isSuggestableUrl(value) {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
+function canonicalSuggestionUrl(value) {
+  try {
+    const url = new URL(value);
+    url.hash = "";
+    if (url.pathname === "/" && !url.search) url.pathname = "";
+    return url.href;
+  } catch {
+    return value;
+  }
+}
+
+function suggestionDisplayUrl(value) {
+  try {
+    const url = new URL(value);
+    const path = url.pathname === "/" ? "" : url.pathname.replace(/\/$/, "");
+    return `${url.hostname.replace(/^www\./, "")}${path}`;
+  } catch {
+    return value;
+  }
+}
+
+function suggestionMatchScore(title, url, query) {
+  const normalizedQuery = query.toLowerCase();
+  const normalizedTitle = String(title || "").toLowerCase();
+  const normalizedUrl = String(url || "").toLowerCase();
+  let hostname = "";
+  try {
+    hostname = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    // The URL is filtered before scoring.
+  }
+
+  let score = 0;
+  if (normalizedTitle === normalizedQuery) score += 70;
+  else if (normalizedTitle.startsWith(normalizedQuery)) score += 52;
+  else if (normalizedTitle.includes(normalizedQuery)) score += 30;
+  if (hostname === normalizedQuery) score += 64;
+  else if (hostname.startsWith(normalizedQuery)) score += 48;
+  else if (hostname.includes(normalizedQuery)) score += 28;
+  if (normalizedUrl.includes(normalizedQuery)) score += 15;
+  return score;
+}
+
+function appendHighlightedText(container, text, query) {
+  const value = String(text || "");
+  const terms = query.trim().split(/\s+/).filter(Boolean).sort((first, second) => second.length - first.length);
+  const term = terms.find(candidate => value.toLowerCase().includes(candidate.toLowerCase()));
+  if (!term) {
+    container.textContent = value;
+    return;
+  }
+
+  const index = value.toLowerCase().indexOf(term.toLowerCase());
+  container.append(document.createTextNode(value.slice(0, index)));
+  const mark = document.createElement("mark");
+  mark.textContent = value.slice(index, index + term.length);
+  container.append(mark, document.createTextNode(value.slice(index + term.length)));
+}
+
+function hideSearchSuggestions() {
+  elements.searchSuggestions.hidden = true;
+  elements.searchInput.setAttribute("aria-expanded", "false");
+  elements.searchInput.removeAttribute("aria-activedescendant");
+  activeSuggestionIndex = -1;
+}
+
+function closeSearchSuggestions() {
+  clearTimeout(suggestionTimer);
+  suggestionRequestId += 1;
+  searchSuggestions = [];
+  elements.suggestionList.replaceChildren();
+  hideSearchSuggestions();
+}
+
+function openSearchSuggestion(suggestion) {
+  closeSearchSuggestions();
+  location.assign(suggestion.url);
+}
+
+function setActiveSuggestion(index) {
+  if (!searchSuggestions.length) return;
+  activeSuggestionIndex = (index + searchSuggestions.length) % searchSuggestions.length;
+  $$(".suggestion-item", elements.suggestionList).forEach((item, itemIndex) => {
+    const selected = itemIndex === activeSuggestionIndex;
+    item.classList.toggle("active", selected);
+    item.setAttribute("aria-selected", String(selected));
+    if (selected) {
+      elements.searchInput.setAttribute("aria-activedescendant", item.id);
+      item.scrollIntoView({ block: "nearest" });
+    }
+  });
+}
+
+function renderSearchSuggestions(query, suggestions) {
+  searchSuggestions = suggestions;
+  activeSuggestionIndex = -1;
+  elements.suggestionList.replaceChildren();
+  elements.searchInput.removeAttribute("aria-activedescendant");
+
+  if (!suggestions.length) {
+    hideSearchSuggestions();
+    return;
+  }
+
+  suggestions.forEach((suggestion, index) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.id = `search-suggestion-${index}`;
+    item.className = "suggestion-item";
+    item.tabIndex = -1;
+    item.setAttribute("role", "option");
+    item.setAttribute("aria-selected", "false");
+
+    const icon = document.createElement("span");
+    icon.className = `suggestion-icon ${suggestion.source}`;
+    icon.append(suggestion.source === "bookmark"
+      ? svg("M7 4.5h10v15L12 16.6 7 19.5v-15Z")
+      : svg("M12 7v5l3.5 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"));
+
+    const copy = document.createElement("span");
+    copy.className = "suggestion-copy";
+    const title = document.createElement("strong");
+    appendHighlightedText(title, suggestion.title, query);
+    const address = document.createElement("small");
+    appendHighlightedText(address, suggestionDisplayUrl(suggestion.url), query);
+    copy.append(title, address);
+
+    const source = document.createElement("span");
+    source.className = "suggestion-source";
+    source.textContent = suggestion.source === "bookmark" ? "Bookmark" : "History";
+    item.append(icon, copy, source, svg("M8 16 16 8M9 8h7v7"));
+    item.addEventListener("click", event => {
+      event.preventDefault();
+      openSearchSuggestion(suggestion);
+    });
+    item.addEventListener("mouseenter", () => setActiveSuggestion(index));
+    elements.suggestionList.append(item);
+  });
+
+  elements.searchSuggestions.hidden = false;
+  elements.searchInput.setAttribute("aria-expanded", "true");
+}
+
+async function updateSearchSuggestions() {
+  const query = elements.searchInput.value.trim();
+  if (!query) {
+    closeSearchSuggestions();
+    return;
+  }
+
+  const requestId = ++suggestionRequestId;
+  const historyPromise = webext?.history?.search
+    ? webext.history.search({ text: query, startTime: 0, maxResults: 50 }).catch(() => [])
+    : Promise.resolve([]);
+  await ensureBookmarkData().catch(() => false);
+  const historyItems = await historyPromise;
+  if (requestId !== suggestionRequestId || elements.searchInput.value.trim() !== query) return;
+
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const candidates = new Map();
+  const addCandidate = candidate => {
+    if (!isSuggestableUrl(candidate.url)) return;
+    const key = canonicalSuggestionUrl(candidate.url);
+    const existing = candidates.get(key);
+    if (!existing) {
+      candidates.set(key, candidate);
+      return;
+    }
+    existing.score = Math.max(existing.score, candidate.score) + Math.min(existing.score, candidate.score) * .12;
+    if (candidate.source === "bookmark") {
+      existing.source = "bookmark";
+      if (candidate.title) existing.title = candidate.title;
+    }
+  };
+
+  flatBookmarks.forEach(bookmark => {
+    const searchable = `${bookmark.title || ""} ${bookmark.url || ""}`.toLowerCase();
+    if (!terms.every(term => searchable.includes(term))) return;
+    addCandidate({
+      title: bookmark.title || suggestionDisplayUrl(bookmark.url),
+      url: bookmark.url,
+      source: "bookmark",
+      score: 42 + suggestionMatchScore(bookmark.title, bookmark.url, query)
+    });
+  });
+
+  historyItems.forEach(historyItem => {
+    if (!historyItem.url) return;
+    const ageInDays = Math.max(0, (Date.now() - (historyItem.lastVisitTime || 0)) / 86_400_000);
+    const visitBoost = Math.min(20, Math.log2((historyItem.visitCount || 0) + 1) * 4);
+    const typedBoost = Math.min(14, (historyItem.typedCount || 0) * 2.8);
+    const recencyBoost = Math.max(0, 15 - Math.log2(ageInDays + 1) * 2.4);
+    addCandidate({
+      title: historyItem.title || suggestionDisplayUrl(historyItem.url),
+      url: historyItem.url,
+      source: "history",
+      score: suggestionMatchScore(historyItem.title, historyItem.url, query) + visitBoost + typedBoost + recencyBoost
+    });
+  });
+
+  const ranked = [...candidates.values()]
+    .sort((first, second) => second.score - first.score || first.title.localeCompare(second.title))
+    .slice(0, 7);
+  renderSearchSuggestions(query, ranked);
+}
+
+function scheduleSearchSuggestions() {
+  clearTimeout(suggestionTimer);
+  activeSuggestionIndex = -1;
+  if (!elements.searchInput.value.trim()) {
+    closeSearchSuggestions();
+    return;
+  }
+  suggestionTimer = setTimeout(() => void updateSearchSuggestions(), 90);
+}
+
+function handleSearchSuggestionKeys(event) {
+  if (event.key === "ArrowDown" && searchSuggestions.length) {
+    event.preventDefault();
+    setActiveSuggestion(activeSuggestionIndex + 1);
+  } else if (event.key === "ArrowUp" && searchSuggestions.length) {
+    event.preventDefault();
+    setActiveSuggestion(activeSuggestionIndex < 0 ? searchSuggestions.length - 1 : activeSuggestionIndex - 1);
+  } else if (event.key === "Enter" && activeSuggestionIndex >= 0) {
+    event.preventDefault();
+    openSearchSuggestion(searchSuggestions[activeSuggestionIndex]);
+  } else if (event.key === "Escape" && !elements.searchSuggestions.hidden) {
+    event.preventDefault();
+    event.stopPropagation();
+    closeSearchSuggestions();
+  } else if (event.key === "Tab") {
+    closeSearchSuggestions();
+  }
 }
 
 function colorFromText(text) {
@@ -755,11 +1007,15 @@ async function deleteCurrentShortcut() {
 }
 
 function countBookmarks(nodes) {
-  return nodes.reduce((count, node) => count + (node.url ? 1 : countBookmarks(node.children || [])), 0);
+  return nodes.reduce((count, node) => {
+    if (node.type === "separator") return count;
+    return count + (node.url ? 1 : countBookmarks(node.children || []));
+  }, 0);
 }
 
 function flattenBookmarkNodes(nodes, folderNames = []) {
   return nodes.flatMap(node => {
+    if (node.type === "separator") return [];
     if (node.url) return [{ ...node, folderPath: folderNames.join(" / ") }];
     const nextFolders = node.title ? [...folderNames, node.title] : folderNames;
     return flattenBookmarkNodes(node.children || [], nextFolders);
@@ -799,6 +1055,22 @@ function createBookmarkItem(bookmark) {
   return link;
 }
 
+function createBookmarkSeparator() {
+  const separator = document.createElement("div");
+  separator.className = "bookmark-separator";
+  separator.setAttribute("role", "separator");
+  separator.setAttribute("aria-orientation", "horizontal");
+  const diamond = document.createElement("span");
+  diamond.setAttribute("aria-hidden", "true");
+  separator.append(diamond);
+  return separator;
+}
+
+function createBookmarkNode(node, depth = 0) {
+  if (node.type === "separator") return createBookmarkSeparator();
+  return node.url ? createBookmarkItem(node) : createBookmarkFolder(node, depth);
+}
+
 function createBookmarkFolder(folder, depth = 0) {
   const details = document.createElement("details");
   details.className = "bookmark-folder";
@@ -819,7 +1091,7 @@ function createBookmarkFolder(folder, depth = 0) {
   const children = document.createElement("div");
   children.className = "bookmark-children";
   (folder.children || []).forEach(node => {
-    children.append(node.url ? createBookmarkItem(node) : createBookmarkFolder(node, depth + 1));
+    children.append(createBookmarkNode(node, depth + 1));
   });
   details.append(children);
   return details;
@@ -863,11 +1135,33 @@ function renderBookmarkTree() {
   }
 
   const roots = bookmarkTree?.[0]?.children || [];
-  roots.forEach(root => elements.bookmarkContent.append(root.url ? createBookmarkItem(root) : createBookmarkFolder(root)));
+  roots.forEach(root => elements.bookmarkContent.append(createBookmarkNode(root)));
+}
+
+async function ensureBookmarkData(force = false) {
+  if (force) {
+    bookmarkTree = null;
+    flatBookmarks = [];
+    bookmarkLoadPromise = null;
+  }
+  if (bookmarkTree) return true;
+  if (!webext?.bookmarks?.getTree) return false;
+
+  if (!bookmarkLoadPromise) {
+    bookmarkLoadPromise = webext.bookmarks.getTree().then(tree => {
+      bookmarkTree = tree;
+      flatBookmarks = flattenBookmarkNodes(tree);
+      return true;
+    }).catch(error => {
+      bookmarkLoadPromise = null;
+      throw error;
+    });
+  }
+  await bookmarkLoadPromise;
+  return true;
 }
 
 async function loadBookmarks(force = false) {
-  if (bookmarkTree && !force) return;
   if (!webext?.bookmarks?.getTree) {
     elements.bookmarkCount.textContent = "Preview mode";
     renderEmptyBookmarks("Firefox access needed", "Load this folder as an extension to browse your real Firefox bookmarks.");
@@ -875,8 +1169,7 @@ async function loadBookmarks(force = false) {
   }
 
   try {
-    bookmarkTree = await webext.bookmarks.getTree();
-    flatBookmarks = flattenBookmarkNodes(bookmarkTree);
+    await ensureBookmarkData(force);
     elements.bookmarkCount.textContent = `${flatBookmarks.length} bookmark${flatBookmarks.length === 1 ? "" : "s"}`;
     renderBookmarkTree();
   } catch (error) {
@@ -887,6 +1180,7 @@ async function loadBookmarks(force = false) {
 
 function openDrawer(name) {
   closeEngineMenu();
+  closeSearchSuggestions();
   const drawer = name === "bookmarks" ? elements.bookmarksDrawer : elements.settingsDrawer;
   const other = name === "bookmarks" ? elements.settingsDrawer : elements.bookmarksDrawer;
   other.classList.remove("open");
@@ -991,8 +1285,22 @@ function handleNoteInput() {
   }, 450);
 }
 
+function insertTypedCharacter(input, character) {
+  const wasFocused = document.activeElement === input;
+  input.focus();
+  const start = wasFocused ? (input.selectionStart ?? input.value.length) : input.value.length;
+  const end = wasFocused ? (input.selectionEnd ?? start) : input.value.length;
+  input.setRangeText(character, start, end, "end");
+  input.dispatchEvent(new InputEvent("input", {
+    bubbles: true,
+    inputType: "insertText",
+    data: character
+  }));
+}
+
 function handleGlobalKeydown(event) {
   const targetIsField = /INPUT|TEXTAREA|SELECT/.test(event.target.tagName) || event.target.isContentEditable;
+  const targetIsInteractive = Boolean(event.target.closest?.("button, a, summary, [role='button']"));
 
   if (event.key === "Escape") {
     closeEngineMenu();
@@ -1009,7 +1317,13 @@ function handleGlobalKeydown(event) {
     return;
   }
 
-  if (targetIsField) return;
+  if (event.altKey && !event.ctrlKey && !event.metaKey && event.code === "KeyB") {
+    event.preventDefault();
+    openDrawer("bookmarks");
+    return;
+  }
+
+  if (targetIsField || elements.shortcutDialog.open) return;
   if (event.key === "/") {
     event.preventDefault();
     if (activeDrawer === elements.bookmarksDrawer) {
@@ -1018,18 +1332,37 @@ function handleGlobalKeydown(event) {
       closeDrawers();
       elements.searchInput.focus();
     }
-  } else if (event.key.toLowerCase() === "b") {
+    return;
+  }
+
+  const canCaptureTyping = !event.ctrlKey
+    && !event.metaKey
+    && !event.altKey
+    && !event.isComposing
+    && event.key.length === 1
+    && activeDrawer !== elements.settingsDrawer;
+  if (canCaptureTyping) {
+    if (event.key === " " && targetIsInteractive) return;
     event.preventDefault();
-    openDrawer("bookmarks");
+    const input = activeDrawer === elements.bookmarksDrawer ? elements.bookmarkSearch : elements.searchInput;
+    if (input === elements.searchInput) closeEngineMenu();
+    if (event.key !== " " || input.value) insertTypedCharacter(input, event.key);
+    else input.focus();
   }
 }
 
 function bindEvents() {
   elements.searchForm.addEventListener("submit", handleSearch);
+  elements.searchInput.addEventListener("input", scheduleSearchSuggestions);
+  elements.searchInput.addEventListener("keydown", handleSearchSuggestionKeys);
+  elements.searchInput.addEventListener("focus", () => {
+    if (elements.searchInput.value.trim()) scheduleSearchSuggestions();
+  });
   elements.engineButton.addEventListener("click", () => toggleEngineMenu());
   elements.engineSelect.addEventListener("change", event => setSearchEngine(event.target.value));
   document.addEventListener("click", event => {
     if (!event.target.closest(".engine-picker")) closeEngineMenu();
+    if (!event.target.closest(".search-section")) closeSearchSuggestions();
   });
 
   $("#bookmarksButton").addEventListener("click", () => openDrawer("bookmarks"));
@@ -1108,6 +1441,8 @@ function bindEvents() {
   if (webext?.bookmarks) {
     const refresh = () => {
       bookmarkTree = null;
+      flatBookmarks = [];
+      bookmarkLoadPromise = null;
       if (activeDrawer === elements.bookmarksDrawer) void loadBookmarks(true);
     };
     webext.bookmarks.onCreated?.addListener(refresh);

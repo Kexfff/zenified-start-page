@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Zenified Start Page",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A calm, theme-aware new tab page with search, shortcuts, bookmarks, notes, and focus tools.",
   "permissions": [
     "bookmarks",
+    "history",
     "storage",
     "theme"
   ],

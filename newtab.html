@@ -21,7 +21,7 @@
         <button class="quiet-button" id="bookmarksButton" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.75 4.75A1.75 1.75 0 0 1 8.5 3h7a1.75 1.75 0 0 1 1.75 1.75V20l-5.25-3.1L6.75 20V4.75Z"/></svg>
           <span>Bookmarks</span>
-          <kbd>B</kbd>
+          <span class="key-combo" aria-hidden="true"><kbd>Alt</kbd><kbd>B</kbd></span>
         </button>
         <button class="icon-button" id="settingsButton" type="button" aria-label="Customize start page" title="Customize">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6"/></svg>
@@ -49,12 +49,19 @@
             </button>
             <div class="engine-menu popover" id="engineMenu" role="listbox" aria-label="Search engine"></div>
           </div>
-          <input id="searchInput" type="search" spellcheck="false" enterkeyhint="search" placeholder="Search the web or enter an address" aria-label="Search the web or enter an address">
+          <input id="searchInput" type="search" spellcheck="false" enterkeyhint="search" placeholder="Search the web or enter an address" aria-label="Search the web or enter an address" role="combobox" aria-autocomplete="list" aria-controls="suggestionList" aria-expanded="false">
           <span class="search-hint" aria-hidden="true"><kbd>Ctrl</kbd><kbd>K</kbd></span>
           <button class="search-submit" type="submit" aria-label="Search">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
           </button>
         </form>
+        <div class="search-suggestions" id="searchSuggestions" hidden>
+          <div class="suggestion-list" id="suggestionList" role="listbox" aria-label="Suggestions from bookmarks and history"></div>
+          <div class="suggestion-footer">
+            <span><kbd>↑</kbd><kbd>↓</kbd> Navigate <kbd>Enter</kbd> Open</span>
+            <span>Local suggestions</span>
+          </div>
+        </div>
       </section>
 
       <section class="shortcuts-section" aria-labelledby="shortcutsTitle">

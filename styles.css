@@ -224,6 +224,7 @@ html[data-theme="blueprint"] body {
 }
 
 html[data-theme="blueprint"] .search-shell,
+html[data-theme="blueprint"] .search-suggestions,
 html[data-theme="blueprint"] .shortcut-link,
 html[data-theme="blueprint"] .add-shortcut,
 html[data-theme="blueprint"] .widget,
@@ -402,6 +403,11 @@ html[data-theme="amoled"] .ambient {
 
 .quiet-button svg {
   width: 16px;
+}
+
+.key-combo {
+  display: inline-flex;
+  gap: 3px;
 }
 
 kbd {
@@ -607,6 +613,157 @@ kbd {
 
 .search-submit svg {
   width: 20px;
+}
+
+.search-suggestions {
+  position: absolute;
+  z-index: 24;
+  top: calc(100% + 11px);
+  right: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 7px 7px 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(var(--bg-rgb), .94);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(30px) saturate(1.25);
+  animation: suggestions-in 170ms var(--ease) both;
+}
+
+.search-suggestions[hidden] {
+  display: none;
+}
+
+.suggestion-list {
+  max-height: min(376px, 54vh);
+  overflow-y: auto;
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.suggestion-item {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 35px minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  transition: 120ms ease;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.suggestion-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.suggestion-icon.bookmark {
+  color: var(--accent);
+}
+
+.suggestion-icon.history {
+  color: var(--accent-2);
+}
+
+.suggestion-icon svg {
+  width: 16px;
+}
+
+.suggestion-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.suggestion-copy strong,
+.suggestion-copy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-copy strong {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 570;
+}
+
+.suggestion-copy small {
+  color: var(--faint);
+  font-size: 8px;
+}
+
+.suggestion-copy mark {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 720;
+}
+
+.suggestion-source {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--faint);
+  font-size: 7px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+.suggestion-item > svg {
+  width: 14px;
+  color: var(--faint);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: 120ms ease;
+}
+
+.suggestion-item:hover > svg,
+.suggestion-item.active > svg {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.suggestion-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 5px -7px 0;
+  padding: 9px 14px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--faint);
+  font-size: 7px;
+}
+
+.suggestion-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.suggestion-footer kbd {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  font-size: 7px;
 }
 
 .popover {
@@ -1232,6 +1389,36 @@ kbd {
 
 .bookmark-folder {
   margin: 4px 0;
+}
+
+.bookmark-separator {
+  display: flex;
+  height: 18px;
+  align-items: center;
+  gap: 8px;
+  margin: 3px 11px;
+  color: var(--accent);
+  opacity: .62;
+}
+
+.bookmark-separator::before,
+.bookmark-separator::after {
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, var(--border-strong));
+  content: "";
+}
+
+.bookmark-separator::after {
+  background: linear-gradient(90deg, var(--border-strong), transparent);
+}
+
+.bookmark-separator span {
+  width: 4px;
+  height: 4px;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  transform: rotate(45deg);
 }
 
 .bookmark-folder summary {
@@ -2227,6 +2414,11 @@ html[data-layout="split"] .widget-grid {
   to { transform: rotate(360deg); }
 }
 
+@keyframes suggestions-in {
+  from { opacity: 0; transform: translateY(-5px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @media (max-width: 780px) {
   .topbar {
     padding: 22px 23px;
@@ -2320,6 +2512,25 @@ html[data-layout="split"] .widget-grid {
     width: 41px;
     height: 41px;
     border-radius: 12px;
+  }
+
+  .search-suggestions {
+    top: calc(100% + 8px);
+    border-radius: 16px;
+  }
+
+  .suggestion-item {
+    grid-template-columns: 33px minmax(0, 1fr) 14px;
+    gap: 9px;
+    padding: 8px;
+  }
+
+  .suggestion-source {
+    display: none;
+  }
+
+  .suggestion-footer > span:first-child {
+    display: none;
   }
 
   .shortcuts-section {
