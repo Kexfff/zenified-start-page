@@ -4,6 +4,17 @@ const webext = globalThis.browser;
 const STORAGE_KEY = "zenifiedState";
 const MAX_SHORTCUTS = 12;
 const FOCUS_DURATION = 25 * 60;
+const THEMES = {
+  auto: { name: "Auto", light: false },
+  amoled: { name: "AMOLED black", light: false },
+  aurora: { name: "Aurora", light: false },
+  dawn: { name: "Dawn", light: true },
+  slate: { name: "Slate", light: false },
+  sakura: { name: "Sakura", light: true },
+  ultraviolet: { name: "Ultraviolet", light: false },
+  blueprint: { name: "Blueprint", light: false }
+};
+const LAYOUTS = ["centered", "split", "compact"];
 
 const SEARCH_ENGINES = {
   duckduckgo: {
@@ -38,6 +49,8 @@ const DEFAULT_SHORTCUTS = [
 
 const DEFAULT_STATE = {
   theme: "auto",
+  layout: "centered",
+  showAddTile: true,
   searchEngine: "duckduckgo",
   clockFormat: "24",
   shortcuts: DEFAULT_SHORTCUTS,
@@ -69,6 +82,9 @@ let activeDrawer = null;
 let focusInterval = null;
 let noteSaveTimer = null;
 let toastTimer = null;
+let activeDragId = null;
+let dragStartOrder = "";
+let pointerDragId = null;
 
 const elements = {
   root: document.documentElement,
@@ -101,6 +117,9 @@ const elements = {
   paletteStatus: $("#paletteStatus"),
   syncBadge: $("#syncBadge"),
   themeGrid: $("#themeGrid"),
+  layoutGrid: $("#layoutGrid"),
+  showAddTile: $("#showAddTile"),
+  addShortcutTop: $("#addShortcutTop"),
   quickNote: $("#quickNote"),
   noteStatus: $("#noteStatus"),
   focusTime: $("#focusTime"),
@@ -325,14 +344,22 @@ async function applyTheme(theme = state.theme) {
   if (theme === "auto") {
     await applyAutoTheme();
   } else {
-    const themeNames = { amoled: "AMOLED black", aurora: "Aurora", dawn: "Dawn" };
-    elements.paletteStatus.textContent = `${themeNames[theme]} palette`;
+    elements.paletteStatus.textContent = `${THEMES[theme].name} palette`;
     setSyncBadge("Manual");
-    $("meta[name='color-scheme']").content = theme === "dawn" ? "light" : "dark";
+    $("meta[name='color-scheme']").content = THEMES[theme].light ? "light" : "dark";
   }
 
   $$("[data-theme-choice]", elements.themeGrid).forEach(button => {
     const selected = button.dataset.themeChoice === theme;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function applyLayout(layout = state.layout) {
+  elements.root.dataset.layout = layout;
+  $$('[data-layout-choice]', elements.layoutGrid).forEach(button => {
+    const selected = button.dataset.layoutChoice === layout;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
@@ -470,6 +497,116 @@ function shortcutFaviconUrl(shortcutUrl) {
   }
 }
 
+function shortcutOrderFromGrid() {
+  return $$(".shortcut[data-shortcut-id]", elements.shortcutGrid).map(item => item.dataset.shortcutId);
+}
+
+function beginShortcutDrag(id, wrapper, mode) {
+  activeDragId = id;
+  dragStartOrder = state.shortcuts.map(shortcut => shortcut.id).join("|");
+  wrapper.classList.add("dragging", `${mode}-dragging`);
+  wrapper.setAttribute("aria-grabbed", "true");
+  elements.shortcutGrid.classList.add("is-reordering");
+}
+
+function moveDraggedShortcut(clientX, clientY) {
+  const dragging = $(`.shortcut[data-shortcut-id="${CSS.escape(activeDragId)}"]`, elements.shortcutGrid);
+  const target = document.elementFromPoint(clientX, clientY)?.closest(".shortcut[data-shortcut-id]");
+  if (!dragging || !target || target === dragging || target.parentElement !== elements.shortcutGrid) return;
+
+  const rect = target.getBoundingClientRect();
+  const verticalOffset = clientY - (rect.top + rect.height / 2);
+  const sameRow = Math.abs(verticalOffset) < rect.height * 0.34;
+  const insertAfter = sameRow ? clientX > rect.left + rect.width / 2 : verticalOffset > 0;
+  target[insertAfter ? "after" : "before"](dragging);
+}
+
+function finishShortcutDrag() {
+  if (!activeDragId) return;
+  const newOrder = shortcutOrderFromGrid();
+  const shortcutsById = new Map(state.shortcuts.map(shortcut => [shortcut.id, shortcut]));
+  const reordered = newOrder.map(id => shortcutsById.get(id)).filter(Boolean);
+  state.shortcuts.forEach(shortcut => {
+    if (!newOrder.includes(shortcut.id)) reordered.push(shortcut);
+  });
+  state.shortcuts = reordered;
+
+  const changed = dragStartOrder !== state.shortcuts.map(shortcut => shortcut.id).join("|");
+  $$(".shortcut", elements.shortcutGrid).forEach(item => {
+    item.classList.remove("dragging", "pointer-dragging", "native-dragging");
+    item.setAttribute("aria-grabbed", "false");
+  });
+  elements.shortcutGrid.classList.remove("is-reordering");
+  activeDragId = null;
+  pointerDragId = null;
+
+  if (changed) {
+    void saveState();
+    showToast("Shortcut order saved");
+  }
+}
+
+function moveShortcutWithKeyboard(id, key) {
+  const currentIndex = state.shortcuts.findIndex(shortcut => shortcut.id === id);
+  if (currentIndex < 0) return;
+  const columns = Math.max(1, getComputedStyle(elements.shortcutGrid).gridTemplateColumns.split(" ").length);
+  const offsets = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -columns, ArrowDown: columns };
+  const targetIndex = Math.max(0, Math.min(state.shortcuts.length - 1, currentIndex + offsets[key]));
+  if (targetIndex === currentIndex) return;
+
+  const [shortcut] = state.shortcuts.splice(currentIndex, 1);
+  state.shortcuts.splice(targetIndex, 0, shortcut);
+  renderShortcuts();
+  void saveState();
+  showToast(`${shortcut.name} moved to position ${targetIndex + 1}`);
+  requestAnimationFrame(() => {
+    $(`.shortcut[data-shortcut-id="${CSS.escape(id)}"] .shortcut-drag-handle`, elements.shortcutGrid)?.focus();
+  });
+}
+
+function attachShortcutReordering(wrapper, handle, shortcut) {
+  wrapper.draggable = true;
+  wrapper.dataset.shortcutId = shortcut.id;
+  wrapper.setAttribute("aria-grabbed", "false");
+
+  wrapper.addEventListener("dragstart", event => {
+    if (pointerDragId) {
+      event.preventDefault();
+      return;
+    }
+    beginShortcutDrag(shortcut.id, wrapper, "native");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", shortcut.id);
+  });
+  wrapper.addEventListener("dragend", finishShortcutDrag);
+
+  handle.addEventListener("keydown", event => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    moveShortcutWithKeyboard(shortcut.id, event.key);
+  });
+  handle.addEventListener("pointerdown", event => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    handle.focus({ preventScroll: true });
+    pointerDragId = shortcut.id;
+    handle.setPointerCapture(event.pointerId);
+    beginShortcutDrag(shortcut.id, wrapper, "pointer");
+  });
+  handle.addEventListener("pointermove", event => {
+    if (pointerDragId !== shortcut.id || !handle.hasPointerCapture(event.pointerId)) return;
+    event.preventDefault();
+    moveDraggedShortcut(event.clientX, event.clientY);
+  });
+  const finishPointerDrag = event => {
+    if (pointerDragId !== shortcut.id) return;
+    if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
+    finishShortcutDrag();
+  };
+  handle.addEventListener("pointerup", finishPointerDrag);
+  handle.addEventListener("pointercancel", finishPointerDrag);
+}
+
 function renderShortcuts() {
   elements.shortcutGrid.replaceChildren();
 
@@ -481,6 +618,7 @@ function renderShortcuts() {
     link.className = "shortcut-link";
     link.href = shortcut.url;
     link.title = shortcut.url;
+    link.draggable = false;
 
     const icon = document.createElement("span");
     icon.className = "shortcut-icon";
@@ -518,11 +656,24 @@ function renderShortcuts() {
     edit.append(svg(["M5 12h.01", "M12 12h.01", "M19 12h.01"]));
     edit.addEventListener("click", () => openShortcutDialog(shortcut));
 
-    wrapper.append(link, edit);
+    const dragHandle = document.createElement("button");
+    dragHandle.type = "button";
+    dragHandle.className = "shortcut-drag-handle";
+    dragHandle.title = `Drag to reorder ${shortcut.name}`;
+    dragHandle.setAttribute("aria-label", `Reorder ${shortcut.name}. Use arrow keys or drag.`);
+    dragHandle.draggable = false;
+    dragHandle.append(svg([
+      "M8 7h.01M12 7h.01M16 7h.01",
+      "M8 12h.01M12 12h.01M16 12h.01",
+      "M8 17h.01M12 17h.01M16 17h.01"
+    ]));
+
+    wrapper.append(link, dragHandle, edit);
+    attachShortcutReordering(wrapper, dragHandle, shortcut);
     elements.shortcutGrid.append(wrapper);
   });
 
-  if (state.shortcuts.length < MAX_SHORTCUTS) {
+  if (state.showAddTile && state.shortcuts.length < MAX_SHORTCUTS) {
     const add = document.createElement("button");
     add.type = "button";
     add.className = "add-shortcut";
@@ -536,6 +687,11 @@ function renderShortcuts() {
     add.addEventListener("click", () => openShortcutDialog());
     elements.shortcutGrid.append(add);
   }
+
+  const atLimit = state.shortcuts.length >= MAX_SHORTCUTS;
+  elements.addShortcutTop.disabled = atLimit;
+  elements.addShortcutTop.title = atLimit ? `Maximum of ${MAX_SHORTCUTS} shortcuts reached` : "Add a shortcut";
+  elements.showAddTile.checked = state.showAddTile;
 }
 
 function openShortcutDialog(shortcut = null) {
@@ -882,7 +1038,16 @@ function bindEvents() {
   $$('[data-close-drawer]').forEach(button => button.addEventListener("click", closeDrawers));
 
   elements.bookmarkSearch.addEventListener("input", renderBookmarkTree);
-  $("#addShortcutTop").addEventListener("click", () => openShortcutDialog());
+  elements.addShortcutTop.addEventListener("click", () => openShortcutDialog());
+  elements.shortcutGrid.addEventListener("dragover", event => {
+    if (!activeDragId) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    moveDraggedShortcut(event.clientX, event.clientY);
+  });
+  elements.shortcutGrid.addEventListener("drop", event => {
+    if (activeDragId) event.preventDefault();
+  });
   $("#closeShortcutDialog").addEventListener("click", closeShortcutDialog);
   $("#cancelShortcut").addEventListener("click", closeShortcutDialog);
   elements.shortcutForm.addEventListener("submit", saveShortcut);
@@ -894,6 +1059,20 @@ function bindEvents() {
       await applyTheme();
       await saveState();
     });
+  });
+
+  $$("[data-layout-choice]", elements.layoutGrid).forEach(button => {
+    button.addEventListener("click", async () => {
+      state.layout = button.dataset.layoutChoice;
+      applyLayout();
+      await saveState();
+    });
+  });
+
+  elements.showAddTile.addEventListener("change", async () => {
+    state.showAddTile = elements.showAddTile.checked;
+    renderShortcuts();
+    await saveState();
   });
 
   $$("[data-format]", elements.clockFormat).forEach(button => {
@@ -943,11 +1122,14 @@ async function initialize() {
   setInterval(updateClock, 1000);
   await loadState();
   if (!SEARCH_ENGINES[state.searchEngine]) state.searchEngine = "duckduckgo";
-  if (!["auto", "amoled", "aurora", "dawn"].includes(state.theme)) state.theme = "auto";
+  if (!THEMES[state.theme]) state.theme = "auto";
+  if (!LAYOUTS.includes(state.layout)) state.layout = "centered";
+  if (typeof state.showAddTile !== "boolean") state.showAddTile = true;
   if (!["12", "24"].includes(state.clockFormat)) state.clockFormat = "24";
 
   elements.quickNote.value = state.note || "";
   renderSearchEngines();
+  applyLayout();
   renderShortcuts();
   updateClockControls();
   updateFocusUI();

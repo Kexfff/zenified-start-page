@@ -7,8 +7,9 @@ Requires Firefox 142 or a current Zen Browser release. This baseline supports Mo
 ## Features
 
 - Active Zen/Firefox theme palette detection with a system-color fallback
-- Auto, AMOLED black, Aurora, and Dawn themes
-- Editable shortcuts with direct-from-site favicons and selectable search engines
+- Auto, AMOLED black, Aurora, Dawn, Slate, Sakura, Ultraviolet, and Blueprint themes
+- Centered, Editorial, and Compact page layouts
+- Editable, draggable shortcuts with direct-from-site favicons and an optional large add tile
 - Searchable Firefox bookmarks drawer
 - 12/24-hour clock, focus timer, and locally saved quick note
 - Responsive layout and keyboard shortcuts (`/`, `Ctrl/Cmd+K`, `B`, and `Esc`)

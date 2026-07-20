@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="auto">
+<html lang="en" data-theme="auto" data-layout="centered">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -174,7 +174,53 @@
               <span class="theme-preview preview-dawn"><i></i><i></i><i></i></span>
               <span>Dawn</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
             </button>
+            <button class="theme-card" data-theme-choice="slate" type="button">
+              <span class="theme-preview preview-slate"><i></i><i></i><i></i></span>
+              <span>Slate</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="sakura" type="button">
+              <span class="theme-preview preview-sakura"><i></i><i></i><i></i></span>
+              <span>Sakura</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="ultraviolet" type="button">
+              <span class="theme-preview preview-ultraviolet"><i></i><i></i><i></i></span>
+              <span>Ultraviolet</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card" data-theme-choice="blueprint" type="button">
+              <span class="theme-preview preview-blueprint"><i></i><i></i><i></i></span>
+              <span>Blueprint</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
           </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="layoutHeading">
+          <div class="settings-label"><div><h3 id="layoutHeading">Layout</h3><p>Change the rhythm and composition of the page.</p></div></div>
+          <div class="layout-grid" id="layoutGrid">
+            <button class="layout-card" data-layout-choice="centered" type="button">
+              <span class="layout-preview layout-preview-centered" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Centered</strong><small>Calm &amp; balanced</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="split" type="button">
+              <span class="layout-preview layout-preview-split" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Editorial</strong><small>Bold split view</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="compact" type="button">
+              <span class="layout-preview layout-preview-compact" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Compact</strong><small>Everything closer</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="shortcutSettingsHeading">
+          <div class="settings-label"><div><h3 id="shortcutSettingsHeading">Shortcuts</h3><p>Drag tiles to rearrange them. The small add action always remains available.</p></div></div>
+          <label class="toggle-row" for="showAddTile">
+            <span><strong>Large add shortcut tile</strong><small>Show the dashed tile at the end of the grid.</small></span>
+            <input id="showAddTile" type="checkbox" checked>
+            <i aria-hidden="true"></i>
+          </label>
         </section>
 
         <section class="settings-group" aria-labelledby="searchHeading">
