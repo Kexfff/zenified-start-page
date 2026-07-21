@@ -12,7 +12,11 @@ const THEMES = {
   slate: { name: "Slate", light: false },
   sakura: { name: "Sakura", light: true },
   ultraviolet: { name: "Ultraviolet", light: false },
-  blueprint: { name: "Blueprint", light: false }
+  blueprint: { name: "Blueprint", light: false },
+  porcelain: { name: "Porcelain", light: true },
+  ember: { name: "Ember", light: false },
+  terminal: { name: "Terminal", light: false },
+  redline: { name: "Redline", light: false }
 };
 const LAYOUTS = ["centered", "split", "compact"];
 

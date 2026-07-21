@@ -1,36 +1,27 @@
 # Zenified Start Page
 
-A lightweight Firefox/Zen Browser new-tab extension with no framework, build step, analytics, or remote code.
+A lightweight Firefox/Zen Browser new-tab extension with NO framework, build step, analytics, or remote code.
 
-Requires Firefox 142 or a current Zen Browser release. This baseline supports Mozilla's built-in no-data-collection declaration used by the manifest.
+### Requires Firefox 142 or up.
 
 ## Features
 
 - Active Zen/Firefox theme palette detection with a system-color fallback
-- Auto, AMOLED black, Aurora, Dawn, Slate, Sakura, Ultraviolet, and Blueprint themes
+- Auto, AMOLED black, Aurora, Dawn, Slate, Sakura, Ultraviolet, Blueprint, Porcelain, Ember, Terminal, and Redline themes
 - Centered, Editorial, and Compact page layouts
 - Editable, draggable shortcuts with direct-from-site favicons and an optional large add tile
 - Searchable Firefox bookmarks drawer
 - Ranked local suggestions from bookmarks and browser history
 - 12/24-hour clock, focus timer, and locally saved quick note
 - Type anywhere to search, plus keyboard shortcuts (`/`, `Ctrl/Cmd+K`, `Alt+B`, and `Esc`)
-
-## Widget ideas
-
-Potential additions for a future version:
-
-- **Tab garden:** Surface old tabs worth revisiting.
-- **Daily intention:** Keep one small priority front and center.
-- **Private weather:** Use a manually selected city without requesting location permission.
+- New-tab and homepage overrides so the dashboard opens in new windows and normal browser startups
 
 ## Load it in Firefox or Zen Browser
 
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Choose **Load Temporary Add-on**.
-3. Select `manifest.json` from this folder.
-4. Open a new tab.
+1. Download the last version from Release page
+2. Add to your Firefox installation.
+3. Be happy.
 
-For a permanent install, package the repository contents as a ZIP and sign it through Mozilla Add-ons.
 
 ## Privacy
 
