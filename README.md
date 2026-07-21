@@ -1,6 +1,8 @@
 # Zenified Start Page
 
 A lightweight Firefox/Zen Browser new-tab extension with NO framework, build step, analytics, or remote code.
+![Alt text](preview.png)
+
 
 ### Requires Firefox 142 or up.
 
@@ -16,11 +18,11 @@ A lightweight Firefox/Zen Browser new-tab extension with NO framework, build ste
 - Type anywhere to search, plus keyboard shortcuts (`/`, `Ctrl/Cmd+K`, `Alt+B`, and `Esc`)
 - New-tab and homepage overrides so the dashboard opens in new windows and normal browser startups
 
-## Load it in Firefox or Zen Browser
+## How to install
 
-1. Download the last version from Release page
-2. Add to your Firefox installation.
-3. Be happy.
+1. Download the last version from Release page (https://github.com/Kexfff/zenified-start-page/releases/tag/v1.3.0)
+2. Add to your Firefox installation
+3. Be happy
 
 
 ## Privacy
