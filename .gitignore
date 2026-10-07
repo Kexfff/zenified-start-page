@@ -1,0 +1,31 @@
+# Generated extension packages
+/dist/
+/web-ext-artifacts/
+*.zip
+*.xpi
+
+# Local tools, credentials, and environment files
+/.agents/
+/.aws/
+/.codex/
+.env
+.env.*
+!.env.example
+
+# Dependencies, caches, and logs
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+coverage/
+*.log
+
+# Editor and operating system files
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db

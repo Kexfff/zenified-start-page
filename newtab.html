@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <div class="custom-background" id="customBackground" aria-hidden="true" hidden></div>
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
 
@@ -159,6 +160,60 @@
         </button>
       </div>
       <div class="settings-content">
+        <section class="settings-group" aria-labelledby="layoutHeading">
+          <div class="settings-label"><div><h3 id="layoutHeading">Layout</h3><p>Change the rhythm and composition of the page.</p></div></div>
+          <div class="layout-grid" id="layoutGrid">
+            <button class="layout-card" data-layout-choice="centered" type="button">
+              <span class="layout-preview layout-preview-centered" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Centered</strong><small>Calm &amp; balanced</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="split" type="button">
+              <span class="layout-preview layout-preview-split" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Editorial</strong><small>Bold split view</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="compact" type="button">
+              <span class="layout-preview layout-preview-compact" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Compact</strong><small>Everything closer</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="dashboard" type="button">
+              <span class="layout-preview layout-preview-dashboard" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Dashboard</strong><small>Tools at a glance</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="sidebar" type="button">
+              <span class="layout-preview layout-preview-sidebar" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Sidebar</strong><small>A personal side panel</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="layout-card" data-layout-choice="panorama" type="button">
+              <span class="layout-preview layout-preview-panorama" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <strong>Panorama</strong><small>Room for your wallpaper</small>
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="backgroundHeading">
+          <div class="settings-label"><div><h3 id="backgroundHeading">Background picture</h3><p>Choose your own picture. It stays in this browser.</p></div></div>
+          <div class="background-preview" id="backgroundPreview" aria-hidden="true"><span>No picture selected</span></div>
+          <div class="background-actions">
+            <button class="secondary-button" id="chooseBackground" type="button">Choose picture</button>
+            <button class="text-button" id="removeBackground" type="button" disabled>Remove</button>
+            <input id="backgroundFile" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" tabindex="-1" aria-label="Choose background picture" aria-describedby="backgroundStatus">
+          </div>
+          <p class="background-status" id="backgroundStatus" role="status" aria-live="polite">JPG, PNG, WebP, GIF or AVIF · up to 15 MB. Pictures are resized for faster tabs; animations become still images.</p>
+          <fieldset class="background-controls" id="backgroundControls" disabled>
+            <legend class="sr-only">Picture appearance</legend>
+            <label class="background-range" for="backgroundDim"><span>Photo shade <output id="backgroundDimValue" for="backgroundDim">35%</output></span><input id="backgroundDim" type="range" min="20" max="90" step="1" value="35"></label>
+            <label class="background-range" for="backgroundBlur"><span>Blur <output id="backgroundBlurValue" for="backgroundBlur">0 px</output></span><input id="backgroundBlur" type="range" min="0" max="20" step="1" value="0"></label>
+            <label class="background-position" for="backgroundPosition">Picture position</label>
+            <div class="select-shell"><select id="backgroundPosition"><option value="center">Center</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 8 3 3 3-3"/></svg></div>
+          </fieldset>
+        </section>
+
         <section class="settings-group" aria-labelledby="themeHeading">
           <div class="settings-label">
             <div><h3 id="themeHeading">Color theme</h3><p>Auto borrows the active Zen or Firefox palette.</p></div>
@@ -168,6 +223,26 @@
             <button class="theme-card" data-theme-choice="auto" type="button">
               <span class="theme-preview preview-auto"><i></i><i></i><i></i></span>
               <span>Auto</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="prism" type="button">
+              <span class="theme-preview preview-prism" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Prism</strong><small>Bold &amp; electric</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="still" type="button">
+              <span class="theme-preview preview-still" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Still</strong><small>Soft sage &amp; quiet</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="material" type="button">
+              <span class="theme-preview preview-material" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Material 3</strong><small>Android · light</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="material-dark" type="button">
+              <span class="theme-preview preview-material-dark" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Material 3 Dark</strong><small>Android · dark</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="nocturne" type="button">
+              <span class="theme-preview preview-nocturne" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Nocturne</strong><small>Ink, gold &amp; serif</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
             </button>
             <button class="theme-card" data-theme-choice="amoled" type="button">
               <span class="theme-preview preview-amoled"><i></i><i></i><i></i></span>
@@ -212,27 +287,6 @@
             <button class="theme-card" data-theme-choice="redline" type="button">
               <span class="theme-preview preview-redline"><i></i><i></i><i></i></span>
               <span>Redline</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-          </div>
-        </section>
-
-        <section class="settings-group" aria-labelledby="layoutHeading">
-          <div class="settings-label"><div><h3 id="layoutHeading">Layout</h3><p>Change the rhythm and composition of the page.</p></div></div>
-          <div class="layout-grid" id="layoutGrid">
-            <button class="layout-card" data-layout-choice="centered" type="button">
-              <span class="layout-preview layout-preview-centered" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-              <strong>Centered</strong><small>Calm &amp; balanced</small>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="layout-card" data-layout-choice="split" type="button">
-              <span class="layout-preview layout-preview-split" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-              <strong>Editorial</strong><small>Bold split view</small>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="layout-card" data-layout-choice="compact" type="button">
-              <span class="layout-preview layout-preview-compact" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-              <strong>Compact</strong><small>Everything closer</small>
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
             </button>
           </div>
         </section>

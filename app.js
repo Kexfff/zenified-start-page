@@ -2,10 +2,19 @@
 
 const webext = globalThis.browser;
 const STORAGE_KEY = "zenifiedState";
+const BACKGROUND_KEY = "zenifiedBackground";
+const MAX_BACKGROUND_FILE_SIZE = 15 * 1024 * 1024;
+const BACKGROUND_POSITIONS = ["center", "top", "bottom", "left", "right"];
+const BACKGROUND_HELP = "JPG, PNG, WebP, GIF or AVIF · up to 15 MB. Pictures are resized for faster tabs; animations become still images.";
 const MAX_SHORTCUTS = 12;
 const FOCUS_DURATION = 25 * 60;
 const THEMES = {
   auto: { name: "Auto", light: false },
+  prism: { name: "Prism", light: false },
+  still: { name: "Still", light: true },
+  material: { name: "Material 3", light: true },
+  "material-dark": { name: "Material 3 Dark", light: false },
+  nocturne: { name: "Nocturne", light: false },
   amoled: { name: "AMOLED black", light: false },
   aurora: { name: "Aurora", light: false },
   dawn: { name: "Dawn", light: true },
@@ -18,7 +27,7 @@ const THEMES = {
   terminal: { name: "Terminal", light: false },
   redline: { name: "Redline", light: false }
 };
-const LAYOUTS = ["centered", "split", "compact"];
+const LAYOUTS = ["centered", "split", "compact", "dashboard", "sidebar", "panorama"];
 
 const SEARCH_ENGINES = {
   duckduckgo: {
@@ -54,6 +63,7 @@ const DEFAULT_SHORTCUTS = [
 const DEFAULT_STATE = {
   theme: "auto",
   layout: "centered",
+  background: { dim: 35, blur: 0, position: "center" },
   showAddTile: true,
   searchEngine: "duckduckgo",
   clockFormat: "24",
@@ -94,6 +104,8 @@ let suggestionTimer = null;
 let suggestionRequestId = 0;
 let searchSuggestions = [];
 let activeSuggestionIndex = -1;
+let backgroundImage = "";
+let backgroundBusy = false;
 
 const elements = {
   root: document.documentElement,
@@ -129,6 +141,18 @@ const elements = {
   syncBadge: $("#syncBadge"),
   themeGrid: $("#themeGrid"),
   layoutGrid: $("#layoutGrid"),
+  customBackground: $("#customBackground"),
+  backgroundPreview: $("#backgroundPreview"),
+  backgroundFile: $("#backgroundFile"),
+  chooseBackground: $("#chooseBackground"),
+  removeBackground: $("#removeBackground"),
+  backgroundStatus: $("#backgroundStatus"),
+  backgroundControls: $("#backgroundControls"),
+  backgroundDim: $("#backgroundDim"),
+  backgroundDimValue: $("#backgroundDimValue"),
+  backgroundBlur: $("#backgroundBlur"),
+  backgroundBlurValue: $("#backgroundBlurValue"),
+  backgroundPosition: $("#backgroundPosition"),
   showAddTile: $("#showAddTile"),
   addShortcutTop: $("#addShortcutTop"),
   quickNote: $("#quickNote"),
@@ -374,6 +398,134 @@ function applyLayout(layout = state.layout) {
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
   });
+}
+
+function normalizeBackground(preferences) {
+  const value = preferences && typeof preferences === "object" ? preferences : {};
+  return {
+    dim: Number.isFinite(value.dim) ? Math.round(Math.min(90, Math.max(20, value.dim))) : 35,
+    blur: Number.isFinite(value.blur) ? Math.round(Math.min(20, Math.max(0, value.blur))) : 0,
+    position: BACKGROUND_POSITIONS.includes(value.position) ? value.position : "center"
+  };
+}
+
+async function loadBackground() {
+  try {
+    const saved = webext?.storage?.local
+      ? (await webext.storage.local.get(BACKGROUND_KEY))[BACKGROUND_KEY]
+      : localStorage.getItem(BACKGROUND_KEY);
+    // Only accept locally generated JPEG data, never URLs or arbitrary CSS.
+    if (typeof saved === "string" && saved.length <= 4 * 1024 * 1024
+      && /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(saved)) {
+      backgroundImage = saved;
+    }
+  } catch (error) {
+    console.warn("Zenified could not load the background picture.", error);
+    elements.backgroundStatus.textContent = "Could not load the saved picture. Try choosing it again.";
+  }
+}
+
+function applyBackground() {
+  const hasImage = Boolean(backgroundImage);
+  const imageStyle = hasImage ? `url("${backgroundImage}")` : "none";
+  elements.root.dataset.customBackground = String(hasImage);
+  elements.customBackground.hidden = !hasImage;
+  elements.customBackground.style.backgroundImage = imageStyle;
+  elements.customBackground.style.backgroundPosition = state.background.position;
+  elements.customBackground.style.setProperty("--background-blur", `${state.background.blur}px`);
+  elements.root.style.setProperty("--background-overlay", state.background.dim / 100);
+  elements.backgroundPreview.style.backgroundImage = imageStyle;
+  elements.backgroundPreview.style.backgroundPosition = state.background.position;
+  elements.backgroundPreview.firstElementChild.hidden = hasImage;
+  elements.backgroundControls.disabled = !hasImage || backgroundBusy;
+  elements.chooseBackground.disabled = backgroundBusy;
+  elements.removeBackground.disabled = !hasImage || backgroundBusy;
+  elements.chooseBackground.textContent = hasImage ? "Change picture" : "Choose picture";
+  elements.backgroundDim.value = state.background.dim;
+  elements.backgroundDimValue.value = `${state.background.dim}%`;
+  elements.backgroundBlur.value = state.background.blur;
+  elements.backgroundBlurValue.value = `${state.background.blur} px`;
+  elements.backgroundPosition.value = state.background.position;
+}
+
+async function prepareBackground(file) {
+  if (!/^image\/(jpeg|png|webp|gif|avif)$/.test(file.type)) {
+    throw new Error("Choose a JPG, PNG, WebP, GIF or AVIF picture.");
+  }
+  if (file.size > MAX_BACKGROUND_FILE_SIZE) throw new Error("Choose a picture smaller than 15 MB.");
+  const data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read this picture. Try another file."));
+    reader.readAsDataURL(file);
+  });
+  const image = new Image();
+  image.src = data;
+  try {
+    await image.decode();
+  } catch {
+    throw new Error("Could not open this picture. Try another file.");
+  }
+  const scale = Math.min(1, 2560 / Math.max(image.naturalWidth, image.naturalHeight));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Could not prepare this picture. Try again.");
+  context.fillStyle = "#15141c";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  let result = canvas.toDataURL("image/jpeg", 0.85);
+  if (result.length > 4 * 1024 * 1024) result = canvas.toDataURL("image/jpeg", 0.65);
+  if (result.length > 4 * 1024 * 1024) throw new Error("This picture is too detailed to save. Try a smaller picture.");
+  return result;
+}
+
+async function chooseBackground(event) {
+  const file = event.target.files?.[0];
+  if (!file || backgroundBusy) return;
+  backgroundBusy = true;
+  applyBackground();
+  elements.backgroundStatus.textContent = "Preparing your picture…";
+  let prepared = false;
+  try {
+    const picture = await prepareBackground(file);
+    prepared = true;
+    if (webext?.storage?.local) {
+      await webext.storage.local.set({ [BACKGROUND_KEY]: picture });
+    } else {
+      localStorage.setItem(BACKGROUND_KEY, picture);
+    }
+    backgroundImage = picture;
+    elements.backgroundStatus.textContent = "Picture saved in this browser. Adjust its appearance below.";
+    showToast("Background picture saved");
+  } catch (error) {
+    elements.backgroundStatus.textContent = prepared
+      ? "Could not save the picture. Browser storage may be full. Try a smaller picture."
+      : error.message;
+  } finally {
+    backgroundBusy = false;
+    elements.backgroundFile.value = "";
+    applyBackground();
+  }
+}
+
+async function removeBackground() {
+  if (backgroundBusy) return;
+  backgroundBusy = true;
+  applyBackground();
+  try {
+    if (webext?.storage?.local) await webext.storage.local.remove(BACKGROUND_KEY);
+    else localStorage.removeItem(BACKGROUND_KEY);
+    backgroundImage = "";
+    elements.backgroundStatus.textContent = BACKGROUND_HELP;
+    showToast("Background picture removed");
+  } catch {
+    elements.backgroundStatus.textContent = "Could not remove the saved picture. Please try again.";
+  } finally {
+    backgroundBusy = false;
+    applyBackground();
+  }
 }
 
 function renderSearchEngines() {
@@ -1197,10 +1349,13 @@ function openDrawer(name) {
 
   if (name === "bookmarks") {
     void loadBookmarks();
-    setTimeout(() => elements.bookmarkSearch.focus(), 220);
-  } else {
-    setTimeout(() => $("[data-theme-choice]", drawer)?.focus(), 220);
   }
+  setTimeout(() => {
+    // Keep focus on a control the user already selected during the opening animation.
+    if (activeDrawer !== drawer || drawer.contains(document.activeElement)) return;
+    const target = name === "bookmarks" ? elements.bookmarkSearch : $("[data-close-drawer]", drawer);
+    target?.focus({ preventScroll: true });
+  }, 220);
 }
 
 function closeDrawers() {
@@ -1412,6 +1567,22 @@ function bindEvents() {
     await saveState();
   });
 
+  elements.chooseBackground.addEventListener("click", () => elements.backgroundFile.click());
+  elements.backgroundFile.addEventListener("change", chooseBackground);
+  elements.removeBackground.addEventListener("click", removeBackground);
+  [elements.backgroundDim, elements.backgroundBlur].forEach(input => {
+    input.addEventListener("input", () => {
+      state.background[input === elements.backgroundDim ? "dim" : "blur"] = Number(input.value);
+      applyBackground();
+    });
+    input.addEventListener("change", () => void saveState());
+  });
+  elements.backgroundPosition.addEventListener("change", async () => {
+    state.background.position = elements.backgroundPosition.value;
+    applyBackground();
+    await saveState();
+  });
+
   $$("[data-format]", elements.clockFormat).forEach(button => {
     button.addEventListener("click", async () => {
       state.clockFormat = button.dataset.format;
@@ -1465,10 +1636,13 @@ async function initialize() {
   if (!LAYOUTS.includes(state.layout)) state.layout = "centered";
   if (typeof state.showAddTile !== "boolean") state.showAddTile = true;
   if (!["12", "24"].includes(state.clockFormat)) state.clockFormat = "24";
+  state.background = normalizeBackground(state.background);
+  await loadBackground();
 
   elements.quickNote.value = state.note || "";
   renderSearchEngines();
   applyLayout();
+  applyBackground();
   renderShortcuts();
   updateClockControls();
   updateFocusUI();
