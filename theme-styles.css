@@ -1,0 +1,184 @@
+/* Color roles stay consistent while each style controls its own visual language. */
+:root {
+  --style-font: "Zen Sans", ui-sans-serif, system-ui, sans-serif;
+  --clock-font: var(--style-font);
+  --clock-weight: 300;
+  --clock-tracking: -.065em;
+  --control-radius: 18px;
+  --icon-radius: 15px;
+  --widget-radius: var(--radius-md);
+  --submit-radius: 13px;
+  --focus-radius: 50%;
+  --accent-2-text: #080c10;
+}
+
+html[data-theme] body { font-family: var(--style-font); }
+html[data-theme] .clock { font-family: var(--clock-font); font-weight: var(--clock-weight); letter-spacing: var(--clock-tracking); }
+html[data-theme] .search-shell, html[data-theme] .search-suggestions { border-radius: var(--control-radius); }
+html[data-theme] .widget { border-radius: var(--widget-radius); }
+html[data-theme] .shortcut-icon, html[data-theme] .add-icon { border-radius: var(--icon-radius); }
+html[data-theme] .search-submit { border-radius: var(--submit-radius); }
+html[data-theme] .focus-toggle {
+  border-radius: var(--focus-radius);
+  background: var(--accent-2);
+  color: var(--accent-2-text);
+  box-shadow: 0 6px 20px rgba(var(--accent-2-rgb), .18);
+}
+.focus-progress { background: conic-gradient(var(--accent-2) var(--timer-progress, 0%), transparent 0); }
+.focus-widget::after { background: rgba(var(--accent-2-rgb), .1); }
+.note-widget { border-inline-start: 3px solid var(--accent-2); }
+.note-widget .widget-icon { color: var(--accent-2); }
+html:not([data-custom-background="true"]) .note-widget {
+  background: linear-gradient(rgba(var(--accent-2-rgb), .07), rgba(var(--accent-2-rgb), .07)), var(--surface);
+}
+.color-target[data-color-target="secondary"][aria-pressed="true"] { border-color: var(--accent-2); box-shadow: inset 0 0 0 1px var(--accent-2); }
+
+/* Prism: graphic shapes, bold type and offset solid shadows. */
+html[data-theme="prism"] { --clock-weight: 800; --control-radius: 8px; --icon-radius: 12px 3px 12px 3px; --widget-radius: 16px 4px 16px 4px; --submit-radius: 6px; --focus-radius: 10px 3px; }
+html[data-theme="prism"] .search-shell { border-width: 2px; border-color: var(--accent); box-shadow: 5px 5px 0 rgba(var(--accent-rgb), .3); }
+html[data-theme="prism"] .widget { border-width: 2px; box-shadow: 4px 4px 0 rgba(var(--accent-2-rgb), .25); }
+html[data-theme="prism"] .section-heading h2 { color: var(--text); font-weight: 800; letter-spacing: .18em; }
+html[data-theme="prism"] .shortcut-link { border-radius: 12px 3px; }
+
+/* Still: open space, quiet rules and circles instead of filled panels. */
+html[data-theme="still"] { --clock-weight: 250; --clock-tracking: -.035em; --control-radius: 0px; --icon-radius: 50%; --widget-radius: 0px; --submit-radius: 50%; }
+html[data-theme="still"]:not([data-custom-background="true"]) .search-shell { border: 0; border-bottom: 1px solid var(--border-strong); background: transparent; box-shadow: none; backdrop-filter: none; }
+html[data-theme="still"]:not([data-custom-background="true"]) .widget { background: transparent; border-width: 1px 0 0; box-shadow: none; }
+html[data-theme="still"] .note-widget { border-top-color: var(--accent-2); }
+html[data-theme="still"] .date { text-transform: none; letter-spacing: .06em; font-weight: 400; }
+html[data-theme="still"] .shortcut-icon { box-shadow: none; }
+
+/* Material: tonal pills; Elevated retains the old dark palette with a distinct raised treatment. */
+html[data-theme="material"] { --style-font: Roboto, "Google Sans", "Zen Sans", system-ui, sans-serif; --clock-weight: 400; --control-radius: 32px; --icon-radius: 18px; --widget-radius: 28px; --submit-radius: 50%; --focus-radius: 16px; }
+html[data-theme="material"] .focus-toggle { box-shadow: none; }
+html[data-theme="material-dark"] { --style-font: Roboto, "Google Sans", "Zen Sans", system-ui, sans-serif; --clock-weight: 600; --clock-tracking: -.045em; --control-radius: 16px; --icon-radius: 10px; --widget-radius: 20px; --submit-radius: 12px; --focus-radius: 12px; }
+html[data-theme="material-dark"]:not([data-custom-background="true"]) :is(.search-shell, .widget) { box-shadow: 0 5px 0 rgba(var(--bg-rgb), .7), 0 12px 28px rgba(0,0,0,.16); border: 1px solid var(--border); }
+html[data-theme="material-dark"] .note-widget { border-inline-start: 3px solid var(--accent-2); }
+html[data-theme="material-dark"] .date { padding: 7px 12px; border-radius: 8px; background: var(--surface-strong); }
+html[data-theme="material-dark"] .shortcut-link { border-radius: 14px; border-color: var(--border); }
+
+/* Nocturne: editorial serif numerals and fine double rules. */
+html[data-theme="nocturne"] { --clock-font: Georgia, "Times New Roman", serif; --clock-weight: 400; --clock-tracking: -.06em; --control-radius: 12px; --icon-radius: 8px; --widget-radius: 8px; --submit-radius: 8px; --focus-radius: 8px; }
+html[data-theme="nocturne"] .hero h1 { font-family: Georgia, serif; font-weight: 400; }
+html[data-theme="nocturne"] .widget { border-top: 3px double rgba(var(--accent-rgb), .4); }
+html[data-theme="nocturne"] .note-widget { border-top-color: var(--accent-2); }
+html[data-theme="nocturne"] .widget-heading { font-family: Georgia, serif; font-size: 12px; text-transform: none; letter-spacing: .04em; }
+html[data-theme="nocturne"] .search-shell { border-width: 1px; box-shadow: none; }
+
+/* AMOLED: straight edges, heavy numerals and only essential outlines. */
+html[data-theme="amoled"] { --clock-font: "Roboto Condensed", "Arial Narrow", Impact, sans-serif; --clock-weight: 800; --clock-tracking: .025em; --control-radius: 0px; --icon-radius: 0px; --widget-radius: 0px; --submit-radius: 0px; --focus-radius: 0px; }
+html[data-theme="amoled"]:not([data-custom-background="true"]) :is(.search-shell, .widget) { background: transparent; box-shadow: none; backdrop-filter: none; }
+html[data-theme="amoled"] .hero h1 { font-size: clamp(18px, 2vw, 23px); font-weight: 400; letter-spacing: .08em; text-transform: uppercase; }
+html[data-theme="amoled"] .shortcut-icon { box-shadow: none; border: 1px solid var(--border-strong); }
+html[data-theme="amoled"] .focus-widget::after { display: none; }
+
+/* Aurora: frosted, floating glass and softened ovals. */
+html[data-theme="aurora"] { --clock-font: "Trebuchet MS", "Zen Sans", sans-serif; --clock-weight: 300; --clock-tracking: -.05em; --control-radius: 30px; --icon-radius: 50%; --widget-radius: 32px; --submit-radius: 50%; }
+html[data-theme="aurora"]:not([data-custom-background="true"]) :is(.search-shell, .widget) { background: linear-gradient(140deg, rgba(var(--accent-rgb), .09), rgba(var(--accent-2-rgb), .06)), var(--surface); border-color: rgba(var(--accent-rgb), .2); box-shadow: inset 0 1px rgba(255,255,255,.15), 0 12px 32px rgba(0,0,0,.09); backdrop-filter: blur(18px); }
+html[data-theme="aurora"] .note-widget { border-inline-start: 3px solid var(--accent-2); }
+html[data-theme="aurora"] .hero h1 { font-weight: 350; letter-spacing: .025em; }
+html[data-theme="aurora"] .date { font-weight: 400; letter-spacing: .22em; }
+
+/* Dawn: a paper journal, serif headings and ruled notes. */
+html[data-theme="dawn"] { --clock-font: Georgia, serif; --clock-weight: 400; --clock-tracking: -.025em; --control-radius: 3px; --icon-radius: 6px; --widget-radius: 3px; --submit-radius: 3px; --focus-radius: 50%; }
+html[data-theme="dawn"] .hero h1 { font-family: Georgia, serif; font-style: italic; font-weight: 400; }
+html[data-theme="dawn"] .date { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .12em; }
+html[data-theme="dawn"]:not([data-custom-background="true"]) :is(.search-shell, .widget) { background-color: var(--surface-solid); box-shadow: 0 3px 0 rgba(var(--accent-rgb), .1); }
+html[data-theme="dawn"] .search-shell { border-bottom-width: 3px; }
+html[data-theme="dawn"] .note-widget textarea { line-height: 23px; background-image: repeating-linear-gradient(to bottom, transparent 0 22px, rgba(var(--accent-2-rgb), .22) 22px 23px); }
+html[data-theme="dawn"] .widget-heading { font-family: Georgia, serif; text-transform: none; font-size: 12px; }
+
+/* Slate: a compact utility console with horizontal shortcut rows. */
+html[data-theme="slate"] { --clock-font: ui-monospace, "Cascadia Mono", monospace; --clock-weight: 500; --clock-tracking: -.08em; --control-radius: 5px; --icon-radius: 5px; --widget-radius: 5px; --submit-radius: 5px; --focus-radius: 5px; }
+html[data-theme="slate"] .shortcut-link, html[data-theme="slate"] .add-shortcut { flex-direction: row; gap: 8px; min-height: 72px; justify-content: flex-start; padding: 12px 8px; border: 1px solid var(--border); border-radius: 5px; }
+html[data-theme="slate"] .shortcut-icon, html[data-theme="slate"] .add-icon { width: 30px; height: 30px; }
+html[data-theme="slate"] .shortcut-favicon { width: 20px; height: 20px; }
+html[data-theme="slate"] .shortcut-name { font-size: 10px; }
+html[data-theme="slate"] .search-shell { box-shadow: none; }
+html[data-theme="slate"] .date { letter-spacing: .08em; }
+html[data-theme="slate"] .widget-heading { font-family: ui-monospace, monospace; }
+
+/* Sakura: petal silhouettes and delicate italic numerals. */
+html[data-theme="sakura"] { --clock-font: Georgia, serif; --clock-weight: 400; --clock-tracking: -.075em; --control-radius: 30px; --icon-radius: 50% 50% 15% 50%; --widget-radius: 30px 30px 8px 30px; --submit-radius: 50% 50% 15% 50%; --focus-radius: 50% 15% 50% 50%; }
+html[data-theme="sakura"] .clock { font-style: italic; }
+html[data-theme="sakura"] .hero h1 { font-weight: 400; letter-spacing: .03em; }
+html[data-theme="sakura"] .widget { border-bottom: 2px solid rgba(var(--accent-2-rgb), .4); }
+html[data-theme="sakura"] .shortcut-link { border-radius: 24px 24px 5px; }
+
+/* Ultraviolet: neon tubing, luminous frames and monospaced numerals. */
+html[data-theme="ultraviolet"] { --clock-font: "Courier New", monospace; --clock-weight: 700; --clock-tracking: -.06em; --control-radius: 14px; --icon-radius: 12px; --widget-radius: 14px; --submit-radius: 10px; --focus-radius: 10px; }
+html[data-theme="ultraviolet"] .clock { text-shadow: 0 0 24px rgba(var(--accent-rgb), .4), 2px 0 rgba(var(--accent-2-rgb), .3); }
+html[data-theme="ultraviolet"] .search-shell { border-color: var(--accent); box-shadow: inset 0 0 14px rgba(var(--accent-rgb), .1), 0 0 18px rgba(var(--accent-rgb), .18); }
+html[data-theme="ultraviolet"] .widget { border-color: rgba(var(--accent-rgb), .6); box-shadow: 0 0 16px rgba(var(--accent-rgb), .12); }
+html[data-theme="ultraviolet"] .note-widget { border-color: rgba(var(--accent-2-rgb), .6); box-shadow: 0 0 16px rgba(var(--accent-2-rgb), .15); }
+html[data-theme="ultraviolet"] .focus-toggle { box-shadow: 0 0 22px rgba(var(--accent-2-rgb), .35); }
+
+/* Blueprint: engineering marks, double frames and an orderly grid. */
+html[data-theme="blueprint"] { --style-font: "Trebuchet MS", system-ui, sans-serif; --clock-font: ui-monospace, monospace; --clock-weight: 400; --clock-tracking: .025em; --control-radius: 2px; --icon-radius: 2px; --widget-radius: 2px; --submit-radius: 2px; --focus-radius: 2px; }
+html[data-theme="blueprint"] .search-shell { border: 3px double rgba(var(--accent-rgb), .6); box-shadow: none; }
+html[data-theme="blueprint"] .widget { border-style: dashed; }
+html[data-theme="blueprint"] .widget::before { content: ""; position: absolute; top: 5px; right: 5px; width: 9px; height: 9px; border-top: 2px solid var(--accent-2); border-right: 2px solid var(--accent-2); pointer-events: none; }
+html[data-theme="blueprint"] .widget-heading, html[data-theme="blueprint"] .section-heading h2 { font-family: ui-monospace, monospace; letter-spacing: .1em; }
+html[data-theme="blueprint"] .shortcut-icon { border: 2px solid rgba(var(--accent-rgb), .6); box-shadow: 3px 3px 0 rgba(var(--accent-rgb), .18); }
+
+/* Porcelain: sculpted surfaces with inset highlights and soft embossed edges. */
+html[data-theme="porcelain"] { --clock-font: "Palatino Linotype", Palatino, Georgia, serif; --clock-weight: 400; --clock-tracking: -.055em; --control-radius: 22px; --icon-radius: 18px; --widget-radius: 22px; --submit-radius: 14px; --focus-radius: 14px; }
+html[data-theme="porcelain"]:not([data-custom-background="true"]) :is(.search-shell, .widget) { background-color: var(--surface-solid); border-color: var(--border); box-shadow: inset 2px 2px 3px rgba(255,255,255,.24), inset -2px -2px 5px rgba(var(--accent-rgb), .1), 5px 7px 18px rgba(var(--accent-rgb), .08); }
+html[data-theme="porcelain"] .shortcut-icon { border: 3px solid var(--surface-solid); box-shadow: 3px 5px 10px rgba(var(--accent-rgb), .18), -2px -2px 6px rgba(255,255,255,.12); }
+html[data-theme="porcelain"] .hero h1 { font-family: "Palatino Linotype", Palatino, Georgia, serif; font-weight: 400; }
+
+/* Ember: retro ticket edges, bold serif numerals and stamped labels. */
+html[data-theme="ember"] { --clock-font: "Noto Serif", Georgia, serif; --clock-weight: 700; --clock-tracking: -.03em; --control-radius: 24px 6px; --icon-radius: 20px; --widget-radius: 18px 6px; --submit-radius: 8px; --focus-radius: 8px; }
+html[data-theme="ember"] .date { font-family: ui-monospace, monospace; padding: 5px 10px; border: 1px dashed var(--border-strong); letter-spacing: .08em; }
+html[data-theme="ember"] .widget { border-top: 2px dashed rgba(var(--accent-rgb), .55); border-bottom: 2px dashed rgba(var(--accent-2-rgb), .45); }
+html[data-theme="ember"] .search-shell { border: 3px double var(--border-strong); box-shadow: none; }
+html[data-theme="ember"] .widget-heading { font-family: ui-monospace, monospace; font-size: 9px; letter-spacing: .15em; }
+html[data-theme="ember"] .focus-toggle { box-shadow: 3px 3px 0 rgba(var(--accent-2-rgb), .25); }
+
+/* Terminal: square console controls and dashed command frames. */
+html[data-theme="terminal"] { --style-font: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace; --clock-weight: 400; --clock-tracking: 0em; --control-radius: 1px; --icon-radius: 1px; --widget-radius: 1px; --submit-radius: 1px; --focus-radius: 1px; }
+html[data-theme="terminal"] .hero h1 { font-size: clamp(16px, 2vw, 22px); letter-spacing: .02em; text-transform: uppercase; font-weight: 400; }
+html[data-theme="terminal"] .search-shell { border-style: dashed; box-shadow: none; }
+html[data-theme="terminal"]:not([data-custom-background="true"]) .widget { background: transparent; border-style: dashed; }
+html[data-theme="terminal"] .shortcut-icon { border: 1px solid var(--accent); box-shadow: none; }
+html[data-theme="terminal"] .shortcut-name { font-size: 10px; }
+html[data-theme="terminal"] .round-action { border-radius: 1px; border: 1px solid var(--border-strong); }
+html[data-theme="terminal"] .note-widget textarea { caret-color: var(--accent-2); }
+html[data-theme="terminal"] .focus-widget::after { display: none; }
+
+/* Redline: condensed slanted numerals and racing stripes, without skewing input text. */
+html[data-theme="redline"] { --clock-font: "Roboto Condensed", "Arial Narrow", Impact, sans-serif; --clock-weight: 800; --clock-tracking: -.045em; --control-radius: 4px; --icon-radius: 3px; --widget-radius: 4px; --submit-radius: 3px; --focus-radius: 3px; }
+html[data-theme="redline"] .clock { font-style: oblique 12deg; }
+html[data-theme="redline"] .hero h1 { font-weight: 750; font-style: italic; letter-spacing: -.02em; }
+html[data-theme="redline"] .date { letter-spacing: .23em; font-style: italic; }
+html[data-theme="redline"] .search-shell { border-inline-start: 5px solid var(--accent); box-shadow: none; }
+html[data-theme="redline"] .widget { border-top: 3px solid var(--accent); }
+html[data-theme="redline"] .note-widget { border-top-color: var(--accent-2); }
+html[data-theme="redline"] .widget::before { content: ""; position: absolute; top: 0; right: 0; width: 44px; height: 18px; background: repeating-linear-gradient(120deg, transparent 0 7px, rgba(var(--accent-2-rgb), .55) 7px 10px); pointer-events: none; }
+html[data-theme="redline"] .search-submit, html[data-theme="redline"] .focus-toggle { transform: skewX(-8deg); }
+html[data-theme="redline"] .search-submit svg, html[data-theme="redline"] .focus-toggle svg { transform: skewX(8deg); }
+
+/* Style previews show both colors and the key silhouette, even with custom palettes. */
+html[data-custom-colors="true"] .theme-preview i:nth-child(2) { background: var(--accent-2); }
+.preview-prism { border-radius: 8px 2px; }
+.preview-prism i:nth-child(2) { border-radius: 4px 0; }
+.preview-still i:nth-child(2) { height: 1px; border-radius: 0; }
+.preview-still i:last-child, .preview-aurora i:last-child { border-radius: 50%; }
+.preview-material-dark i:nth-child(2) { border-radius: 3px; box-shadow: 1px 2px 0 rgba(127,127,127,.5); }
+.preview-nocturne i:first-child { height: 5px; border-bottom: 1px solid var(--accent-2); }
+.preview-amoled, .preview-terminal, .preview-blueprint { border-radius: 1px; }
+.preview-amoled i:first-child { height: 6px; }
+.preview-aurora { border-radius: 12px; }
+.preview-dawn i:nth-child(2) { border-radius: 0; border-bottom: 1px dashed var(--accent-2); }
+.preview-slate i:nth-child(2) { width: 28px; height: 5px; border-radius: 1px; }
+.preview-sakura i:last-child { border-radius: 50% 50% 10% 50%; }
+.preview-ultraviolet { box-shadow: inset 0 0 5px rgba(var(--accent-rgb), .5); }
+.preview-porcelain { box-shadow: inset 1px 1px 2px rgba(255,255,255,.45); }
+.preview-ember i:nth-child(2) { border-top: 1px dashed var(--accent-2); }
+.preview-terminal i:last-child { border-radius: 0; }
+.preview-redline i:first-child { transform: skewX(-12deg); height: 5px; }
+
+@media (max-width: 520px) {
+  html[data-theme="slate"] .shortcut-link, html[data-theme="slate"] .add-shortcut { flex-direction: column; justify-content: center; gap: 8px; }
+  html[data-theme="slate"][data-layout="dashboard"] .shortcut-link, html[data-theme="slate"][data-layout="dashboard"] .add-shortcut { flex-direction: row; justify-content: flex-start; }
+}

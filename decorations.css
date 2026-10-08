@@ -1,0 +1,135 @@
+/* Tiny, local vector ornaments. The whole layer sits below every page control. */
+.theme-decorations {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  contain: strict;
+}
+
+.theme-decorations[hidden] { display: none; }
+.theme-particle {
+  position: absolute;
+  top: -100px;
+  left: var(--x);
+  width: var(--size);
+  margin-left: calc(var(--size) / -2);
+  color: var(--accent);
+  opacity: .34;
+  animation: decoration-fall var(--duration) var(--delay) linear infinite;
+}
+.theme-particle:nth-child(even) { color: var(--accent-2); }
+.theme-particle svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: currentColor;
+  stroke: none;
+  animation: decoration-sway 7s var(--delay) ease-in-out infinite alternate;
+}
+.theme-particle svg path + path { fill: none; stroke: currentColor; stroke-width: 1; }
+
+/* Petals have a notched tip, a translucent vein, and a gentle flutter. */
+.theme-decorations[data-motif="petal"] .theme-particle { opacity: .5; }
+.theme-decorations[data-motif="petal"] svg {
+  filter: drop-shadow(0 2px 3px rgba(var(--accent-rgb), .12));
+  animation-name: decoration-flutter;
+}
+.theme-decorations[data-motif="petal"] svg path:first-child {
+  fill: color-mix(in srgb, currentColor 60%, var(--surface-solid));
+}
+.theme-decorations[data-motif="petal"] svg path + path { opacity: .35; }
+
+/* A bite out of each biscuit, chocolate chips, and tiny sugar specks. */
+.theme-decorations[data-motif="cookie"] .theme-particle { opacity: .5; }
+.theme-decorations[data-motif="cookie"] svg { animation-duration: 11s; }
+.theme-decorations[data-motif="cookie"] svg path:first-child {
+  fill: color-mix(in srgb, currentColor 20%, #efd3a6);
+  stroke: color-mix(in srgb, currentColor 30%, #bd925d);
+  stroke-width: 1.4;
+}
+.theme-decorations[data-motif="cookie"] svg path:nth-child(2) {
+  fill: color-mix(in srgb, currentColor 25%, #765443);
+  stroke: none;
+}
+.theme-decorations[data-motif="cookie"] svg path:last-child { stroke: #fff5dc; stroke-width: 2; }
+
+.theme-decorations[data-motif="bubble"] .theme-particle { animation-name: decoration-rise; opacity: .3; }
+.theme-decorations[data-motif="bubble"] svg path:first-child {
+  fill: color-mix(in srgb, currentColor 8%, transparent);
+  stroke: currentColor;
+  stroke-width: .7;
+}
+.theme-decorations[data-motif="bubble"] svg path + path { stroke-width: 1.6; opacity: .65; }
+.theme-decorations[data-motif="leaf"] svg path:first-child { fill: color-mix(in srgb, currentColor 40%, var(--surface-solid)); }
+.theme-decorations[data-motif="leaf"] svg path + path { opacity: .65; }
+
+.theme-decorations[data-motif="star"] .theme-particle {
+  top: var(--rest);
+  animation: decoration-twinkle 9s var(--delay) ease-in-out infinite;
+}
+.theme-decorations[data-motif="star"] svg { animation: none; transform: rotate(var(--turn)); }
+html[data-theme="ultraviolet"] .theme-decorations[data-motif="star"] svg { filter: drop-shadow(0 0 8px currentColor); }
+.theme-decorations[data-motif="confetti"] .theme-particle:nth-child(3n) svg { clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.theme-decorations[data-motif="confetti"] .theme-particle:nth-child(3n + 1) svg { border-radius: 50%; overflow: hidden; }
+.theme-decorations[data-motif="orbit"] .theme-particle {
+  top: var(--rest);
+  opacity: .25;
+  animation: decoration-hover var(--duration) var(--delay) ease-in-out infinite;
+}
+.theme-decorations[data-motif="orbit"] svg path:first-child { fill: none; stroke: currentColor; }
+.theme-decorations[data-motif="orbit"] svg path + path { stroke: var(--accent-2); }
+.theme-decorations[data-motif="spark"] svg { filter: drop-shadow(0 0 5px currentColor); }
+.theme-decorations[data-motif="bit"] svg { animation: none; }
+html[data-custom-background="true"] .theme-decorations { opacity: .7; }
+
+.theme-decorations[data-paused="true"] .theme-particle,
+.theme-decorations[data-paused="true"] svg { animation-play-state: paused; }
+
+.flourishes-toggle { margin-top: 18px; }
+.flourishes-toggle strong { color: var(--text); font-size: 11px; }
+.decoration-help { margin: 8px 0 0; color: var(--faint); font-size: 10px; line-height: 1.6; }
+
+@keyframes decoration-fall {
+  from { transform: translate3d(0, -40px, 0); }
+  to { transform: translate3d(var(--drift), calc(100vh + 200px), 0); }
+}
+@keyframes decoration-rise {
+  from { transform: translate3d(0, calc(100vh + 200px), 0); }
+  to { transform: translate3d(var(--drift), -40px, 0); }
+}
+@keyframes decoration-sway {
+  from { transform: translateX(-12px) rotate(var(--turn)); }
+  to { transform: translateX(12px) rotate(calc(var(--turn) + 50deg)); }
+}
+@keyframes decoration-flutter {
+  from { transform: translateX(-16px) rotate(var(--turn)) rotateY(0deg); }
+  to { transform: translateX(16px) rotate(calc(var(--turn) + 80deg)) rotateY(55deg); }
+}
+@keyframes decoration-twinkle {
+  0%, 100% { opacity: .12; transform: scale(.8); }
+  50% { opacity: .42; transform: scale(1); }
+}
+@keyframes decoration-hover {
+  0%, 100% { transform: translate3d(0, -8px, 0); }
+  50% { transform: translate3d(var(--drift), 8px, 0); }
+}
+
+@media (max-width: 520px) {
+  .theme-particle:nth-child(n + 10) { display: none; }
+  .theme-particle { left: var(--mobile-x); width: calc(var(--size) * .8); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-decorations .theme-particle {
+    top: var(--rest);
+    animation: none !important;
+    transform: none;
+    opacity: .3;
+  }
+  .theme-decorations .theme-particle svg {
+    animation: none !important;
+    transform: rotate(var(--turn));
+  }
+}

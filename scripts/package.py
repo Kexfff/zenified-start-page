@@ -9,7 +9,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 def main():
     root = Path(__file__).resolve().parent.parent
     manifest = json.loads((root / "manifest.json").read_text())
-    files = ["manifest.json", "newtab.html", "app.js", "styles.css", "LICENSE"]
+    files = ["manifest.json", "newtab.html", "app.js", "styles.css", "theme-styles.css", "decorations.css", "LICENSE"]
     files.extend(sorted(set(manifest["icons"].values())))
     for name in files:
         if not (root / name).is_file():

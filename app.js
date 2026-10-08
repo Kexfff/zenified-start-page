@@ -13,7 +13,7 @@ const THEMES = {
   prism: { name: "Prism", light: false },
   still: { name: "Still", light: true },
   material: { name: "Material 3", light: true },
-  "material-dark": { name: "Material 3 Dark", light: false },
+  "material-dark": { name: "Material Elevated", light: false },
   nocturne: { name: "Nocturne", light: false },
   amoled: { name: "AMOLED black", light: false },
   aurora: { name: "Aurora", light: false },
@@ -28,6 +28,23 @@ const THEMES = {
   redline: { name: "Redline", light: false }
 };
 const LAYOUTS = ["centered", "split", "compact", "dashboard", "sidebar", "panorama"];
+const DECORATION_THEMES = {
+  auto: "bubble", prism: "confetti", still: "bubble", material: "cookie",
+  "material-dark": "cookie", nocturne: "star", amoled: "star", aurora: "bubble",
+  dawn: "leaf", slate: "orbit", sakura: "petal", ultraviolet: "star",
+  blueprint: "orbit", porcelain: "bubble", ember: "spark", terminal: "bit", redline: "spark"
+};
+const DECORATION_MOTIFS = {
+  petal: { label: "Soft petals drifting on a spring breeze.", count: 18, size: 28, paths: ["M22 2C9 2 1 13 5 25c4 11 15 16 22 8 7-8 5-16 1-19l-4 5 1-8-3-9Z", "M8 27c8-2 13-8 15-18"], viewBox: "0 0 36 40" },
+  cookie: { label: "Little cookies, baked for your Material theme.", count: 10, size: 54, paths: ["M31 4c-1 5 2 8 7 8-1 4 2 7 7 6 1 18-15 28-30 18C0 33-1 16 10 7c6-4 14-5 21-3Z", "M13 13l4-1 1 4-4 2-1-5Zm11 11 4-2 2 4-4 2-2-4ZM9 26l3-1 2 3-4 2-1-4Zm16 9 3-1 1 3-3 1-1-3Z", "M21 10h.1M34 30h.1M18 27h.1M10 20h.1"], viewBox: "0 0 48 48" },
+  star: { label: "A quiet constellation of little stars.", count: 14, size: 32, paths: ["M20 3 24 16 37 20 24 24 20 37 16 24 3 20 16 16 20 3Z", "M33 2v6m-3-3h6"], viewBox: "0 0 40 40" },
+  bubble: { label: "Weightless bubbles catching the light.", count: 10, size: 52, paths: ["M20 3a17 17 0 1 0 0 34 17 17 0 1 0 0-34Z", "M9 17a12 12 0 0 1 8-8"], viewBox: "0 0 40 40" },
+  leaf: { label: "Tiny leaves wandering across your page.", count: 12, size: 38, paths: ["M5 34C0 13 14 2 34 5c1 19-9 34-29 29Z", "M5 34 27 12M13 26l-1-9m8 2 8 1"], viewBox: "0 0 40 40" },
+  confetti: { label: "Floating shapes for a tiny everyday celebration.", count: 14, size: 30, paths: ["M7 5h22v22H7Z", "M10 33h23"], viewBox: "0 0 40 40" },
+  orbit: { label: "Small satellites tracing imaginary orbits.", count: 10, size: 44, paths: ["M20 12a8 8 0 1 0 0 16 8 8 0 1 0 0-16Z", "M3 27C-1 17 29-1 36 9s-27 30-33 18Z"], viewBox: "0 0 40 40" },
+  spark: { label: "Slow sparks and glimmers of light.", count: 14, size: 26, paths: ["M23 2 7 23h11l-3 15 18-23H22l1-13Z"], viewBox: "0 0 40 40" },
+  bit: { label: "A few stray pixels from a friendly console.", count: 14, size: 26, paths: ["M5 5h10v10H5Zm20 10h10v10H25ZM15 25h10v10H15Z"], viewBox: "0 0 40 40" }
+};
 
 const SEARCH_ENGINES = {
   duckduckgo: {
@@ -62,9 +79,11 @@ const DEFAULT_SHORTCUTS = [
 
 const DEFAULT_STATE = {
   theme: "auto",
+  colors: null,
   layout: "centered",
   background: { dim: 35, blur: 0, position: "center" },
   showAddTile: true,
+  decorations: false,
   searchEngine: "duckduckgo",
   clockFormat: "24",
   shortcuts: DEFAULT_SHORTCUTS,
@@ -82,7 +101,11 @@ const AUTO_STYLE_PROPERTIES = [
   "--bg", "--bg-rgb", "--surface", "--surface-strong", "--surface-solid",
   "--border", "--border-strong", "--text", "--muted", "--faint",
   "--accent", "--accent-rgb", "--accent-2", "--accent-2-rgb",
-  "--accent-text", "--danger", "--shadow"
+  "--accent-text", "--accent-2-text", "--danger", "--shadow"
+];
+const CUSTOM_COLOR_PROPERTIES = [
+  ...AUTO_STYLE_PROPERTIES, "--primary-container", "--on-primary-container",
+  "--secondary-container", "--on-secondary-container", "--decor-primary-rgb", "--decor-secondary-rgb"
 ];
 
 const $ = (selector, context = document) => context.querySelector(selector);
@@ -106,6 +129,12 @@ let searchSuggestions = [];
 let activeSuggestionIndex = -1;
 let backgroundImage = "";
 let backgroundBusy = false;
+let activePickerColor = "primary";
+let pickerHsv = { h: 0, s: 0, v: 100 };
+let defaultThemeColors = null;
+let colorSaveTimer = null;
+let colorPointerId = null;
+let themeApplicationId = 0;
 
 const elements = {
   root: document.documentElement,
@@ -140,6 +169,20 @@ const elements = {
   paletteStatus: $("#paletteStatus"),
   syncBadge: $("#syncBadge"),
   themeGrid: $("#themeGrid"),
+  themeLibrary: $("#themeLibrary"),
+  currentThemeName: $("#currentThemeName"),
+  themeDecorations: $("#themeDecorations"),
+  enableDecorations: $("#enableDecorations"),
+  decorationHint: $("#decorationHint"),
+  colorEditor: $("#colorEditor"),
+  colorTargets: $("#colorTargets"),
+  colorField: $("#colorField"),
+  colorCursor: $("#colorCursor"),
+  colorHue: $("#colorHue"),
+  colorHex: $("#colorHex"),
+  colorMode: $("#colorMode"),
+  resetColors: $("#resetColors"),
+  colorStatus: $("#colorStatus"),
   layoutGrid: $("#layoutGrid"),
   customBackground: $("#customBackground"),
   backgroundPreview: $("#backgroundPreview"),
@@ -197,8 +240,10 @@ async function saveState() {
     } else {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     }
+    return true;
   } catch (error) {
     console.warn("Zenified could not save preferences.", error);
+    return false;
   }
 }
 
@@ -298,11 +343,12 @@ function setAutoProperty(name, value) {
 }
 
 function clearAutoPalette() {
-  AUTO_STYLE_PROPERTIES.forEach(property => elements.root.style.removeProperty(property));
+  CUSTOM_COLOR_PROPERTIES.forEach(property => elements.root.style.removeProperty(property));
   elements.root.removeAttribute("data-auto-mode");
+  elements.root.removeAttribute("data-custom-colors");
 }
 
-async function applyAutoTheme() {
+async function applyAutoTheme(applicationId) {
   clearAutoPalette();
   const systemDark = matchMedia("(prefers-color-scheme: dark)").matches;
   let colors = {};
@@ -317,6 +363,7 @@ async function applyAutoTheme() {
   } catch (error) {
     console.info("Browser theme colors are not exposed in this context.", error);
   }
+  if (applicationId !== themeApplicationId) return;
 
   const base = parseColor(colors.toolbar) || parseColor(colors.frame) || parseColor(colors.sidebar) || (systemDark ? [19, 18, 27] : [242, 240, 237]);
   const suppliedText = parseColor(colors.toolbar_text) || parseColor(colors.tab_text) || parseColor(colors.sidebar_text);
@@ -372,22 +419,268 @@ async function applyAutoTheme() {
 }
 
 async function applyTheme(theme = state.theme) {
+  const applicationId = ++themeApplicationId;
   clearAutoPalette();
   elements.root.dataset.theme = theme;
   elements.root.style.colorScheme = "";
 
   if (theme === "auto") {
-    await applyAutoTheme();
+    await applyAutoTheme(applicationId);
+    if (applicationId !== themeApplicationId) return;
   } else {
-    elements.paletteStatus.textContent = `${THEMES[theme].name} palette`;
-    setSyncBadge("Manual");
+    elements.paletteStatus.textContent = `${THEMES[theme].name} · default colors`;
+    setSyncBadge("Default");
     $("meta[name='color-scheme']").content = THEMES[theme].light ? "light" : "dark";
   }
+
+  const defaults = getComputedStyle(elements.root);
+  defaultThemeColors = {
+    primary: hexColor(defaults.getPropertyValue("--accent-rgb").split(",").map(Number)),
+    secondary: hexColor(defaults.getPropertyValue("--accent-2-rgb").split(",").map(Number)),
+    mode: theme === "auto" ? elements.root.dataset.autoMode : (THEMES[theme].light ? "light" : "dark")
+  };
+  elements.root.style.setProperty("--accent-2-text", hexColor(onColor(colorRgb(defaultThemeColors.secondary))));
+  applyColorPalette();
+  renderColorPicker();
+  elements.currentThemeName.textContent = THEMES[theme].name;
+  renderDecorations();
 
   $$("[data-theme-choice]", elements.themeGrid).forEach(button => {
     const selected = button.dataset.themeChoice === theme;
     button.classList.toggle("active", selected);
     button.setAttribute("aria-pressed", String(selected));
+  });
+}
+
+function renderDecorations() {
+  const layer = elements.themeDecorations;
+  const kind = DECORATION_THEMES[state.theme] || "bubble";
+  const motif = DECORATION_MOTIFS[kind];
+  elements.enableDecorations.checked = state.decorations;
+  elements.decorationHint.textContent = motif.label;
+  layer.hidden = !state.decorations;
+  if (!state.decorations) {
+    layer.replaceChildren();
+    delete layer.dataset.motif;
+    return;
+  }
+  // Palette changes recolor the existing art without restarting its motion.
+  if (layer.dataset.motif === kind) return;
+  layer.replaceChildren();
+  layer.dataset.motif = kind;
+  layer.dataset.paused = String(document.hidden);
+  for (let index = 0; index < motif.count; index++) {
+    const particle = document.createElement("span");
+    particle.className = "theme-particle";
+    const duration = 24 + index % 6 * 4;
+    particle.style.setProperty("--x", `${(index * 97 / motif.count + 2) % 98}%`);
+    particle.style.setProperty("--mobile-x", `${(index * 97 / Math.min(motif.count, 9) + 2) % 98}%`);
+    particle.style.setProperty("--size", `${motif.size * (.65 + index % 4 * .16)}px`);
+    particle.style.setProperty("--duration", `${duration}s`);
+    particle.style.setProperty("--delay", `${-duration * ((index * 37 + 17) % 100) / 100}s`);
+    particle.style.setProperty("--rest", `${8 + (index * 31 + 17) % 80}vh`);
+    particle.style.setProperty("--turn", `${index * 47 % 360}deg`);
+    particle.style.setProperty("--drift", `${index % 2 ? -32 : 32}px`);
+    particle.append(svg(motif.paths, motif.viewBox));
+    layer.append(particle);
+  }
+}
+
+function normalizeColors(value) {
+  if (!value || typeof value !== "object") return null;
+  if (![value.primary, value.secondary].every(color => typeof color === "string" && /^#[\da-f]{6}$/i.test(color))) return null;
+  if (!["light", "dark"].includes(value.mode)) return null;
+  return { primary: value.primary.toLowerCase(), secondary: value.secondary.toLowerCase(), mode: value.mode };
+}
+
+function colorRgb(hex) {
+  return [1, 3, 5].map(index => parseInt(hex.slice(index, index + 2), 16));
+}
+
+function contrastRatio(first, second) {
+  const a = luminance(first), b = luminance(second);
+  return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
+}
+
+function onColor(color) {
+  return contrastRatio([0, 0, 0], color) > contrastRatio([255, 255, 255], color) ? [0, 0, 0] : [255, 255, 255];
+}
+
+function readableColor(color, background, ratio = 4.5) {
+  if (contrastRatio(color, background) >= ratio) return color;
+  const target = contrastRatio([0, 0, 0], background) > contrastRatio([255, 255, 255], background) ? [0, 0, 0] : [255, 255, 255];
+  for (let step = 1; step <= 100; step++) {
+    const candidate = mixColor(color, target, step / 100);
+    if (contrastRatio(candidate, background) >= ratio) return candidate;
+  }
+  return target;
+}
+
+function buildColorPalette(colors) {
+  const dark = colors.mode === "dark";
+  const primary = colorRgb(colors.primary), secondary = colorRgb(colors.secondary);
+  const bg = mixColor(primary, dark ? [12, 13, 17] : [251, 250, 253], .94);
+  const surface = mixColor(primary, dark ? [26, 27, 33] : [244, 242, 248], .9);
+  const strong = mixColor(primary, dark ? [40, 41, 49] : [229, 225, 235], .88);
+  const text = dark ? [248, 246, 252] : [27, 25, 33];
+  const accent = readableColor(primary, bg);
+  const accentTwo = readableColor(secondary, bg);
+  const onAccent = onColor(accent);
+  const primaryContainer = mixColor(primary, dark ? [25, 23, 31] : [249, 246, 255], dark ? .72 : .8);
+  const secondaryContainer = mixColor(secondary, dark ? [25, 23, 31] : [249, 246, 255], dark ? .78 : .84);
+  return {
+    "--bg": hexColor(bg), "--bg-rgb": rgbString(bg),
+    "--surface": hexColor(surface), "--surface-strong": hexColor(strong), "--surface-solid": hexColor(surface),
+    "--border": `rgba(${rgbString(text)}, .13)`, "--border-strong": `rgba(${rgbString(text)}, .28)`,
+    "--text": hexColor(text), "--muted": hexColor(readableColor(mixColor(text, bg, .28), strong)),
+    "--faint": hexColor(readableColor(mixColor(text, bg, .43), strong)),
+    "--accent": hexColor(accent), "--accent-rgb": rgbString(accent),
+    "--accent-2": hexColor(accentTwo), "--accent-2-rgb": rgbString(accentTwo), "--accent-text": hexColor(onAccent),
+    "--accent-2-text": hexColor(onColor(accentTwo)),
+    "--danger": dark ? "#ff909e" : "#a82c42",
+    "--shadow": dark ? "0 24px 70px rgba(0, 0, 0, .26)" : "0 16px 44px rgba(25, 20, 35, .09)",
+    "--primary-container": hexColor(primaryContainer), "--on-primary-container": hexColor(readableColor(text, primaryContainer)),
+    "--secondary-container": hexColor(secondaryContainer), "--on-secondary-container": hexColor(readableColor(text, secondaryContainer)),
+    "--decor-primary-rgb": rgbString(accent), "--decor-secondary-rgb": rgbString(accentTwo)
+  };
+}
+
+function applyColorPalette() {
+  if (!state.colors) return;
+  Object.entries(buildColorPalette(state.colors)).forEach(([property, value]) => elements.root.style.setProperty(property, value));
+  elements.root.dataset.customColors = "true";
+  elements.root.style.colorScheme = state.colors.mode;
+  $("meta[name='color-scheme']").content = state.colors.mode;
+  elements.paletteStatus.textContent = `${THEMES[state.theme].name} · your colors`;
+  setSyncBadge("Custom");
+}
+
+function rgbToHsv(rgb, fallbackHue = 0) {
+  const [r, g, b] = rgb.map(channel => channel / 255);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), delta = max - min;
+  let h = fallbackHue;
+  if (delta) {
+    h = max === r ? (g - b) / delta : max === g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+    h = ((h * 60) + 360) % 360;
+  }
+  return { h, s: max ? delta / max * 100 : 0, v: max * 100 };
+}
+
+function hsvToRgb({ h, s, v }) {
+  const saturation = s / 100, value = v / 100;
+  const channel = offset => {
+    const k = (offset + h / 60) % 6;
+    return Math.round(255 * value * (1 - saturation * Math.max(0, Math.min(k, 4 - k, 1))));
+  };
+  return [channel(5), channel(3), channel(1)];
+}
+
+function renderColorPicker(syncHsv = true) {
+  const colors = state.colors || defaultThemeColors;
+  if (!colors) return;
+  if (syncHsv) pickerHsv = rgbToHsv(colorRgb(colors[activePickerColor]), pickerHsv.h);
+  elements.colorEditor.style.setProperty("--picker-hue", `hsl(${pickerHsv.h} 100% 50%)`);
+  elements.colorEditor.style.setProperty("--picker-primary", colors.primary);
+  elements.colorEditor.style.setProperty("--picker-secondary", colors.secondary);
+  elements.colorCursor.style.left = `${pickerHsv.s}%`;
+  elements.colorCursor.style.top = `${100 - pickerHsv.v}%`;
+  elements.colorCursor.style.background = colors[activePickerColor];
+  elements.colorField.setAttribute("aria-label", `${activePickerColor === "primary" ? "Primary" : "Secondary"} color gradient`);
+  elements.colorField.setAttribute("aria-valuenow", String(Math.round(pickerHsv.s)));
+  elements.colorField.setAttribute("aria-valuetext", `${colors[activePickerColor]}, saturation ${Math.round(pickerHsv.s)}%, brightness ${Math.round(pickerHsv.v)}%`);
+  elements.colorHue.value = String(Math.round(pickerHsv.h));
+  elements.colorHex.value = colors[activePickerColor];
+  elements.colorHex.removeAttribute("aria-invalid");
+  $$('[data-color-target]', elements.colorTargets).forEach(button => button.setAttribute("aria-pressed", String(button.dataset.colorTarget === activePickerColor)));
+  $$('[data-color-mode]', elements.colorMode).forEach(button => {
+    const selected = button.dataset.colorMode === colors.mode;
+    button.classList.toggle("active", selected);
+    button.setAttribute("aria-pressed", String(selected));
+  });
+  elements.resetColors.disabled = !state.colors;
+  elements.colorStatus.textContent = state.colors ? "Your colors · shades adjust for readability." : "Default colors · choose a color to make them yours.";
+}
+
+async function persistColors() {
+  clearTimeout(colorSaveTimer);
+  if (!await saveState()) elements.colorStatus.textContent = "Could not save your colors. Try adjusting them again.";
+}
+
+function editColors(changes, syncHsv = true) {
+  state.colors = { ...(state.colors || defaultThemeColors), ...changes };
+  applyColorPalette();
+  renderColorPicker(syncHsv);
+  clearTimeout(colorSaveTimer);
+  colorSaveTimer = setTimeout(() => void persistColors(), 200);
+}
+
+function pickColorAt(event) {
+  const rect = elements.colorField.getBoundingClientRect();
+  pickerHsv.s = Math.min(100, Math.max(0, (event.clientX - rect.left) / rect.width * 100));
+  pickerHsv.v = 100 - Math.min(100, Math.max(0, (event.clientY - rect.top) / rect.height * 100));
+  editColors({ [activePickerColor]: hexColor(hsvToRgb(pickerHsv)) }, false);
+}
+
+function bindColorEvents() {
+  $$('[data-color-target]', elements.colorTargets).forEach(button => button.addEventListener("click", () => {
+    activePickerColor = button.dataset.colorTarget;
+    renderColorPicker();
+  }));
+  elements.colorField.addEventListener("pointerdown", event => {
+    if (event.button !== 0 || colorPointerId !== null) return;
+    event.preventDefault();
+    elements.colorField.focus({ preventScroll: true });
+    colorPointerId = event.pointerId;
+    elements.colorField.setPointerCapture(event.pointerId);
+    pickColorAt(event);
+  });
+  elements.colorField.addEventListener("pointermove", event => {
+    if (colorPointerId === event.pointerId) pickColorAt(event);
+  });
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+    elements.colorField.addEventListener(type, event => {
+      if (colorPointerId !== event.pointerId) return;
+      colorPointerId = null;
+      void persistColors();
+    });
+  }
+  elements.colorField.addEventListener("keydown", event => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const step = event.shiftKey ? 10 : 1;
+    if (event.key === "ArrowLeft") pickerHsv.s = Math.max(0, pickerHsv.s - step);
+    if (event.key === "ArrowRight") pickerHsv.s = Math.min(100, pickerHsv.s + step);
+    if (event.key === "ArrowUp") pickerHsv.v = Math.min(100, pickerHsv.v + step);
+    if (event.key === "ArrowDown") pickerHsv.v = Math.max(0, pickerHsv.v - step);
+    if (event.key === "Home") pickerHsv.s = 0;
+    if (event.key === "End") pickerHsv.s = 100;
+    editColors({ [activePickerColor]: hexColor(hsvToRgb(pickerHsv)) }, false);
+  });
+  elements.colorHue.addEventListener("input", () => {
+    pickerHsv.h = Number(elements.colorHue.value);
+    editColors({ [activePickerColor]: hexColor(hsvToRgb(pickerHsv)) }, false);
+  });
+  elements.colorHue.addEventListener("change", () => void persistColors());
+  elements.colorHex.addEventListener("input", () => {
+    let hex = elements.colorHex.value.trim().replace(/^#/, "");
+    if (/^[\da-f]{3}$/i.test(hex)) hex = hex.split("").map(character => character.repeat(2)).join("");
+    if (!/^[\da-f]{6}$/i.test(hex)) {
+      elements.colorHex.setAttribute("aria-invalid", "true");
+      return;
+    }
+    // Keep the caret in place while typing a valid code.
+    const value = elements.colorHex.value, caret = elements.colorHex.selectionStart;
+    editColors({ [activePickerColor]: `#${hex.toLowerCase()}` });
+    elements.colorHex.value = value;
+    elements.colorHex.setSelectionRange(caret, caret);
+  });
+  elements.colorHex.addEventListener("blur", () => renderColorPicker());
+  $$('[data-color-mode]', elements.colorMode).forEach(button => button.addEventListener("click", () => editColors({ mode: button.dataset.colorMode })));
+  elements.resetColors.addEventListener("click", async () => {
+    clearTimeout(colorSaveTimer);
+    state.colors = null;
+    await applyTheme();
+    await persistColors();
   });
 }
 
@@ -1511,6 +1804,7 @@ function handleGlobalKeydown(event) {
 }
 
 function bindEvents() {
+  bindColorEvents();
   elements.searchForm.addEventListener("submit", handleSearch);
   elements.searchInput.addEventListener("input", scheduleSearchSuggestions);
   elements.searchInput.addEventListener("keydown", handleSearchSuggestionKeys);
@@ -1548,7 +1842,9 @@ function bindEvents() {
   $$("[data-theme-choice]", elements.themeGrid).forEach(button => {
     button.addEventListener("click", async () => {
       state.theme = button.dataset.themeChoice;
+      elements.themeLibrary.open = false;
       await applyTheme();
+      $("summary", elements.themeLibrary).focus({ preventScroll: true });
       await saveState();
     });
   });
@@ -1565,6 +1861,15 @@ function bindEvents() {
     state.showAddTile = elements.showAddTile.checked;
     renderShortcuts();
     await saveState();
+  });
+
+  elements.enableDecorations.addEventListener("change", async () => {
+    state.decorations = elements.enableDecorations.checked;
+    renderDecorations();
+    if (!await saveState()) showToast("Could not save your flourishes setting. Please try again.");
+  });
+  document.addEventListener("visibilitychange", () => {
+    elements.themeDecorations.dataset.paused = String(document.hidden);
   });
 
   elements.chooseBackground.addEventListener("click", () => elements.backgroundFile.click());
@@ -1604,12 +1909,12 @@ function bindEvents() {
 
   const systemScheme = matchMedia("(prefers-color-scheme: dark)");
   systemScheme.addEventListener("change", () => {
-    if (state.theme === "auto") void applyAutoTheme();
+    if (state.theme === "auto") void applyTheme();
   });
 
   if (webext?.theme?.onUpdated) {
     webext.theme.onUpdated.addListener(() => {
-      if (state.theme === "auto") void applyAutoTheme();
+      if (state.theme === "auto") void applyTheme();
     });
   }
 
@@ -1633,8 +1938,10 @@ async function initialize() {
   await loadState();
   if (!SEARCH_ENGINES[state.searchEngine]) state.searchEngine = "duckduckgo";
   if (!THEMES[state.theme]) state.theme = "auto";
+  state.colors = normalizeColors(state.colors);
   if (!LAYOUTS.includes(state.layout)) state.layout = "centered";
   if (typeof state.showAddTile !== "boolean") state.showAddTile = true;
+  if (typeof state.decorations !== "boolean") state.decorations = false;
   if (!["12", "24"].includes(state.clockFormat)) state.clockFormat = "24";
   state.background = normalizeBackground(state.background);
   await loadBackground();

@@ -6,11 +6,14 @@
     <meta name="color-scheme" content="dark light">
     <title>New Tab</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="theme-styles.css">
+    <link rel="stylesheet" href="decorations.css">
   </head>
   <body>
     <div class="custom-background" id="customBackground" aria-hidden="true" hidden></div>
     <div class="ambient ambient-one" aria-hidden="true"></div>
     <div class="ambient ambient-two" aria-hidden="true"></div>
+    <div class="theme-decorations" id="themeDecorations" aria-hidden="true" hidden></div>
 
     <header class="topbar">
       <a class="brand" href="#main" aria-label="Zenified home">
@@ -196,6 +199,114 @@
           </div>
         </section>
 
+        <section class="settings-group" aria-labelledby="themeHeading">
+          <div class="settings-label">
+            <div><h3 id="themeHeading">Theme style</h3><p>Choose the shapes, typography and atmosphere. Your colors stay with you.</p></div>
+            <span class="sync-badge" id="syncBadge"><span></span>Auto</span>
+          </div>
+          <details class="theme-library" id="themeLibrary">
+          <summary><strong id="currentThemeName">Auto</strong><span>Change style <b aria-hidden="true">⌄</b></span></summary>
+          <div class="theme-grid" id="themeGrid">
+            <button class="theme-card theme-card-detailed" data-theme-choice="auto" type="button">
+              <span class="theme-preview preview-auto"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Auto</strong><small>Balanced &amp; adaptive</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="prism" type="button">
+              <span class="theme-preview preview-prism" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Prism</strong><small>Bold geometry</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="still" type="button">
+              <span class="theme-preview preview-still" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Still</strong><small>Airy &amp; minimal</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="material" type="button">
+              <span class="theme-preview preview-material" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Material 3</strong><small>Tonal &amp; rounded</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="material-dark" type="button">
+              <span class="theme-preview preview-material-dark" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Material Elevated</strong><small>Raised &amp; layered</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="nocturne" type="button">
+              <span class="theme-preview preview-nocturne" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Nocturne</strong><small>Elegant &amp; serif</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="amoled" type="button">
+              <span class="theme-preview preview-amoled"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>AMOLED</strong><small>Bare &amp; precise</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="aurora" type="button">
+              <span class="theme-preview preview-aurora"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Aurora</strong><small>Floating glass</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="dawn" type="button">
+              <span class="theme-preview preview-dawn"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Dawn</strong><small>Paper journal</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="slate" type="button">
+              <span class="theme-preview preview-slate"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Slate</strong><small>Compact utility</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="sakura" type="button">
+              <span class="theme-preview preview-sakura"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Sakura</strong><small>Petal curves</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="ultraviolet" type="button">
+              <span class="theme-preview preview-ultraviolet"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Ultraviolet</strong><small>Neon outlines</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="blueprint" type="button">
+              <span class="theme-preview preview-blueprint"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Blueprint</strong><small>Technical grid</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="porcelain" type="button">
+              <span class="theme-preview preview-porcelain"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Porcelain</strong><small>Embossed ceramic</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="ember" type="button">
+              <span class="theme-preview preview-ember"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Ember</strong><small>Retro tickets</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="terminal" type="button">
+              <span class="theme-preview preview-terminal"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Terminal</strong><small>Console &amp; scanlines</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+            <button class="theme-card theme-card-detailed" data-theme-choice="redline" type="button">
+              <span class="theme-preview preview-redline"><i></i><i></i><i></i></span>
+              <span class="theme-meta"><strong>Redline</strong><small>Motorsport angles</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
+            </button>
+          </div>
+          </details>
+          <label class="toggle-row flourishes-toggle" for="enableDecorations">
+            <span><strong>Theme flourishes</strong><small id="decorationHint">A little extra joy, just for your theme.</small></span>
+            <input id="enableDecorations" type="checkbox" aria-describedby="decorationHelp">
+            <i aria-hidden="true"></i>
+          </label>
+          <p class="decoration-help" id="decorationHelp">Purely for joy. Gentle motion, or still decorations when you prefer less animation.</p>
+        </section>
+
+        <section class="settings-group color-editor" id="colorEditor" aria-labelledby="colorsHeading">
+          <div class="settings-label">
+            <div><h3 id="colorsHeading">Your colors</h3><p>Pick two colors. Use them with any style.</p></div>
+            <button class="text-button" id="resetColors" type="button" disabled>Reset colors</button>
+          </div>
+          <div class="color-targets" id="colorTargets" role="group" aria-label="Color to edit">
+            <button class="color-target" data-color-target="primary" type="button" aria-pressed="true"><i class="primary-swatch" aria-hidden="true"></i><span>Primary<small>Buttons &amp; tinted surfaces</small></span></button>
+            <button class="color-target" data-color-target="secondary" type="button" aria-pressed="false"><i class="secondary-swatch" aria-hidden="true"></i><span>Secondary<small>Focus &amp; note accents</small></span></button>
+          </div>
+          <div class="color-field" id="colorField" role="slider" tabindex="0" aria-label="Primary color gradient" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="" aria-describedby="colorKeyboardHelp"><span class="color-cursor" id="colorCursor" aria-hidden="true"></span></div>
+          <p class="sr-only" id="colorKeyboardHelp">Left and right arrows change saturation. Up and down change brightness. Hold Shift for larger steps. Home and End set saturation to zero or full.</p>
+          <label class="color-hue-label" for="colorHue">Hue</label>
+          <input class="color-hue" id="colorHue" type="range" min="0" max="359" step="1" value="0">
+          <div class="color-options">
+            <label class="color-hex-label" for="colorHex">Hex color<input id="colorHex" type="text" maxlength="7" spellcheck="false" autocomplete="off" placeholder="#9384ff" aria-describedby="colorHexHelp"></label>
+            <div><span class="color-mode-label">Appearance</span><div class="segmented" id="colorMode" role="group" aria-label="Color appearance"><button type="button" data-color-mode="light">Light</button><button type="button" data-color-mode="dark">Dark</button></div></div>
+          </div>
+          <span class="sr-only" id="colorHexHelp">Enter a three or six digit hex color, with or without a hash.</span>
+          <p class="color-status" id="colorStatus" role="status">Default colors · choose a color to make them yours.</p>
+          <p class="color-reset-help">Reset restores this style's original colors. Auto defaults follow Zen / Firefox.</p>
+        </section>
+
         <section class="settings-group" aria-labelledby="backgroundHeading">
           <div class="settings-label"><div><h3 id="backgroundHeading">Background picture</h3><p>Choose your own picture. It stays in this browser.</p></div></div>
           <div class="background-preview" id="backgroundPreview" aria-hidden="true"><span>No picture selected</span></div>
@@ -214,82 +325,6 @@
           </fieldset>
         </section>
 
-        <section class="settings-group" aria-labelledby="themeHeading">
-          <div class="settings-label">
-            <div><h3 id="themeHeading">Color theme</h3><p>Auto borrows the active Zen or Firefox palette.</p></div>
-            <span class="sync-badge" id="syncBadge"><span></span>Auto</span>
-          </div>
-          <div class="theme-grid" id="themeGrid">
-            <button class="theme-card" data-theme-choice="auto" type="button">
-              <span class="theme-preview preview-auto"><i></i><i></i><i></i></span>
-              <span>Auto</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card theme-card-detailed" data-theme-choice="prism" type="button">
-              <span class="theme-preview preview-prism" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="theme-meta"><strong>Prism</strong><small>Bold &amp; electric</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card theme-card-detailed" data-theme-choice="still" type="button">
-              <span class="theme-preview preview-still" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="theme-meta"><strong>Still</strong><small>Soft sage &amp; quiet</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card theme-card-detailed" data-theme-choice="material" type="button">
-              <span class="theme-preview preview-material" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="theme-meta"><strong>Material 3</strong><small>Android · light</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card theme-card-detailed" data-theme-choice="material-dark" type="button">
-              <span class="theme-preview preview-material-dark" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="theme-meta"><strong>Material 3 Dark</strong><small>Android · dark</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card theme-card-detailed" data-theme-choice="nocturne" type="button">
-              <span class="theme-preview preview-nocturne" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="theme-meta"><strong>Nocturne</strong><small>Ink, gold &amp; serif</small></span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="amoled" type="button">
-              <span class="theme-preview preview-amoled"><i></i><i></i><i></i></span>
-              <span>AMOLED</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="aurora" type="button">
-              <span class="theme-preview preview-aurora"><i></i><i></i><i></i></span>
-              <span>Aurora</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="dawn" type="button">
-              <span class="theme-preview preview-dawn"><i></i><i></i><i></i></span>
-              <span>Dawn</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="slate" type="button">
-              <span class="theme-preview preview-slate"><i></i><i></i><i></i></span>
-              <span>Slate</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="sakura" type="button">
-              <span class="theme-preview preview-sakura"><i></i><i></i><i></i></span>
-              <span>Sakura</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="ultraviolet" type="button">
-              <span class="theme-preview preview-ultraviolet"><i></i><i></i><i></i></span>
-              <span>Ultraviolet</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="blueprint" type="button">
-              <span class="theme-preview preview-blueprint"><i></i><i></i><i></i></span>
-              <span>Blueprint</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="porcelain" type="button">
-              <span class="theme-preview preview-porcelain"><i></i><i></i><i></i></span>
-              <span>Porcelain</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="ember" type="button">
-              <span class="theme-preview preview-ember"><i></i><i></i><i></i></span>
-              <span>Ember</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="terminal" type="button">
-              <span class="theme-preview preview-terminal"><i></i><i></i><i></i></span>
-              <span>Terminal</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-            <button class="theme-card" data-theme-choice="redline" type="button">
-              <span class="theme-preview preview-redline"><i></i><i></i><i></i></span>
-              <span>Redline</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3 3 7-7"/></svg>
-            </button>
-          </div>
-        </section>
 
         <section class="settings-group" aria-labelledby="shortcutSettingsHeading">
           <div class="settings-label"><div><h3 id="shortcutSettingsHeading">Shortcuts</h3><p>Drag tiles to rearrange them. The small add action always remains available.</p></div></div>
