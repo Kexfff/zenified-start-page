@@ -16,7 +16,7 @@ Choose a style, then make it yours with independent primary and secondary colors
 | --- | --- |
 | [![Ultraviolet with teal neon frames and gold secondary accents](docs/screenshots/theme-ultraviolet.jpg)](docs/screenshots/theme-ultraviolet.jpg) | [![Material 3 with rounded tonal panels and floating cookies](docs/screenshots/material-cookies.jpg)](docs/screenshots/material-cookies.jpg) |
 
-Switch on **Theme flourishes** for a little extra joy: drifting Sakura petals, Material cookies, and other ornaments that follow your style. The toggle saves locally, and reduced-motion preferences turn animations into still decorations.
+Switch on **Theme flourishes** for a little extra joy: every style gets its own scene, from drifting Sakura petals and Material cookies to glowing Redline light trails and a neon Ultraviolet horizon. The toggle saves locally, and reduced-motion preferences turn animations into still decorations.
 
 | Sakura · drifting petals | Customize · your colors and flourishes |
 | --- | --- |
@@ -29,7 +29,7 @@ Click any screenshot to see it at full size.
 - Active Zen/Firefox theme palette detection with a system-color fallback
 - Auto, Prism, Still, Material 3, Material Elevated, Nocturne, AMOLED, Aurora, Dawn, Slate, Sakura, Ultraviolet, Blueprint, Porcelain, Ember, Terminal, and Redline styles
 - Independent primary and secondary colors with a gradient picker, light/dark appearance, and reset to each style's original palette
-- Optional theme flourishes: drifting Sakura petals, Material cookies, stars, bubbles, leaves, confetti, orbits, sparks, and console pixels
+- Optional theme flourishes with a scene for every style: Sakura petals, Material shapes, Nocturne moonlight, Aurora curtains, Ultraviolet's neon horizon, Ember sparks, Terminal rain, Redline light trails, and more
 - Centered, Editorial, Compact, Dashboard, Sidebar, and Panorama page layouts
 - Your own background picture with shade, blur, and position controls, saved only in this browser
 - Editable, draggable shortcuts with direct-from-site favicons and an optional large add tile
@@ -60,7 +60,7 @@ In **Your colors**, choose **Primary** or **Secondary**, then use the gradient a
 
 **Reset colors** restores the selected style's original palette without changing its style, layout, notes, shortcuts or photo. For Auto, reset returns to the active Zen / Firefox palette or system appearance. The gradient supports mouse and touch; left/right arrows adjust saturation, up/down arrows adjust brightness, and Shift makes larger steps. The hue slider and all other controls also support the keyboard.
 
-Switch on **Theme flourishes** under Theme style for little decorations that follow your chosen style. Sakura gets drifting petals; both Material styles get cookies. Other styles have stars, bubbles, leaves, confetti, orbits, sparks, or pixels. Flourishes start off, save locally, follow your colors, and sit behind the controls. They use local vector artwork and gentle CSS motion, pause in hidden tabs, and become still ornaments when the system requests reduced motion.
+Switch on **Theme flourishes** under Theme style for little decorations that follow your chosen style. Sakura gets drifting petals and both Material styles get Material 3 cookie, clover and flower shapes. Nocturne has a crescent moon and shooting stars, AMOLED a pinpoint starfield, Aurora rippling northern lights, Dawn morning rays, Ultraviolet a glowing synthwave floor, Blueprint drafting marks, Porcelain glazed beads, Ember rising sparks, Terminal console rain, and Redline glowing stripes with racing light trails. Auto, Prism, Still and Slate get soft light orbs, tumbling shapes, ripples, and a dot grid with passing signals. Flourishes start off, save locally, follow your colors, and sit behind the controls. They use local vector artwork and CSS motion, pause in hidden tabs, and become still ornaments when the system requests reduced motion.
 
 Choose a JPG, PNG, WebP, GIF, or AVIF picture up to 15 MB. It is saved as a still JPEG, resized to at most 2560 pixels on its longest side. Use **Photo shade** for readability, **Blur** to soften busy pictures, and **Picture position** to choose which part stays visible. Picture mode uses light text and translucent controls so the photo stays visible with every theme. **Remove** restores the selected theme's background.
 

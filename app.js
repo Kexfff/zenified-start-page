@@ -29,21 +29,48 @@ const THEMES = {
 };
 const LAYOUTS = ["centered", "split", "compact", "dashboard", "sidebar", "panorama"];
 const DECORATION_THEMES = {
-  auto: "bubble", prism: "confetti", still: "bubble", material: "cookie",
-  "material-dark": "cookie", nocturne: "star", amoled: "star", aurora: "bubble",
-  dawn: "leaf", slate: "orbit", sakura: "petal", ultraviolet: "star",
-  blueprint: "orbit", porcelain: "bubble", ember: "spark", terminal: "bit", redline: "spark"
+  auto: "bokeh", prism: "shard", still: "ripple", material: "cookie",
+  "material-dark": "cookie", nocturne: "moonlit", amoled: "starfield", aurora: "aurora",
+  dawn: "sunrise", slate: "circuit", sakura: "petal", ultraviolet: "horizon",
+  blueprint: "draft", porcelain: "glaze", ember: "embers", terminal: "rain", redline: "trail"
 };
+const M3_SHAPES = [
+  ["M50 7L54 4.6L58.1 4.1L61.8 6L64.7 9.6L67.1 13.4L69.7 15.9L73.2 16.9L77.6 17.1L82.2 17.8L85.7 20L87.3 23.9L87.2 28.5L86.6 32.9L87 36.5L89 39.5L92.3 42.5L95.4 46L96.7 50L95.4 54L92.3 57.5L89 60.5L87 63.5L86.6 67.1L87.2 71.5L87.3 76.1L85.7 80L82.2 82.2L77.6 82.9L73.2 83.1L69.7 84.1L67.1 86.6L64.7 90.4L61.8 94L58.1 95.9L54 95.4L50 93L46.5 90.3L43.2 88.7L39.5 89L35.3 90.4L30.7 91.3L26.7 90.4L23.9 87.3L22.4 82.9L21.4 78.6L19.9 75.3L16.9 73.2L12.8 71.5L8.7 69.3L6.2 66L6 61.8L7.7 57.5L9.7 53.5L10.7 50L9.7 46.5L7.7 42.5L6 38.2L6.2 34L8.7 30.7L12.8 28.5L16.9 26.8L19.9 24.7L21.4 21.4L22.4 17.1L23.9 12.7L26.7 9.6L30.7 8.7L35.3 9.6L39.5 11L43.2 11.3L46.5 9.7Z"],
+  ["M50 4L54.4 5.1L58.3 8.1L61.4 12.5L63.4 17.7L64.5 22.9L65.1 27.4L65.7 30.9L66.9 33.1L69.1 34.3L72.6 34.9L77.1 35.5L82.3 36.6L87.5 38.6L91.9 41.7L94.9 45.6L96 50L94.9 54.4L91.9 58.3L87.5 61.4L82.3 63.4L77.1 64.5L72.6 65.1L69.1 65.7L66.9 66.9L65.7 69.1L65.1 72.6L64.5 77.1L63.4 82.3L61.4 87.5L58.3 91.9L54.4 94.9L50 96L45.6 94.9L41.7 91.9L38.6 87.5L36.6 82.3L35.5 77.1L34.9 72.6L34.3 69.1L33.1 66.9L30.9 65.7L27.4 65.1L22.9 64.5L17.7 63.4L12.5 61.4L8.1 58.3L5.1 54.4L4 50L5.1 45.6L8.1 41.7L12.5 38.6L17.7 36.6L22.9 35.5L27.4 34.9L30.9 34.3L33.1 33.1L34.3 30.9L34.9 27.4L35.5 22.9L36.6 17.7L38.6 12.5L41.7 8.1L45.6 5.1Z"],
+  ["M50 2.8L54 4.1L57.6 6.8L61.1 8.7L65 8.8L69.5 8.2L73.6 9.1L76.5 12.2L78.2 16.4L80.2 19.8L83.6 21.8L87.8 23.5L90.9 26.4L91.8 30.5L91.2 35L91.3 38.9L93.2 42.4L95.9 46L97.2 50L95.9 54L93.2 57.6L91.3 61.1L91.2 65L91.8 69.5L90.9 73.6L87.8 76.5L83.6 78.2L80.2 80.2L78.2 83.6L76.5 87.8L73.6 90.9L69.5 91.8L65 91.2L61.1 91.3L57.6 93.2L54 95.9L50 97.2L46 95.9L42.4 93.2L38.9 91.3L35 91.2L30.5 91.8L26.4 90.9L23.5 87.8L21.8 83.6L19.8 80.2L16.4 78.2L12.2 76.5L9.1 73.6L8.2 69.5L8.8 65L8.7 61.1L6.8 57.6L4.1 54L2.8 50L4.1 46L6.8 42.4L8.7 38.9L8.8 35L8.2 30.5L9.1 26.4L12.2 23.5L16.4 21.8L19.8 19.8L21.8 16.4L23.5 12.2L26.4 9.1L30.5 8.2L35 8.8L38.9 8.7L42.4 6.8L46 4.1Z"],
+  ["M50 4L54.3 6.4L57.5 12.1L59.7 18L62 21.1L65.8 20.5L71.5 17.9L77.8 16.1L82.5 17.5L83.9 22.2L82.1 28.5L79.5 34.2L78.9 38L82 40.3L87.9 42.5L93.6 45.7L96 50L93.6 54.3L87.9 57.5L82 59.7L78.9 62L79.5 65.8L82.1 71.5L83.9 77.8L82.5 82.5L77.8 83.9L71.5 82.1L65.8 79.5L62 78.9L59.7 82L57.5 87.9L54.3 93.6L50 96L45.7 93.6L42.5 87.9L40.3 82L38 78.9L34.2 79.5L28.5 82.1L22.2 83.9L17.5 82.5L16.1 77.8L17.9 71.5L20.5 65.8L21.1 62L18 59.7L12.1 57.5L6.4 54.3L4 50L6.4 45.7L12.1 42.5L18 40.3L21.1 38L20.5 34.2L17.9 28.5L16.1 22.2L17.5 17.5L22.2 16.1L28.5 17.9L34.2 20.5L38 21.1L40.3 18L42.5 12.1L45.7 6.4Z"],
+  ["M50 6L63.3 6.1L73.1 6.9L82.9 9.9L87 13L90.1 17.1L93.1 26.9L93.9 36.7L94 50L93.9 63.3L93.1 73.1L90.1 82.9L87 87L82.9 90.1L73.1 93.1L63.3 93.9L50 94L36.7 93.9L26.9 93.1L17.1 90.1L13 87L9.9 82.9L6.9 73.1L6.1 63.3L6 50L6.1 36.7L6.9 26.9L9.9 17.1L13 13L17.1 9.9L26.9 6.9L36.7 6.1Z"],
+  ["M30 18h40a32 32 0 0 1 0 64H30a32 32 0 0 1 0-64Z"]
+];
+const SPARKLE = ["M20 2C21 14 26 19 38 20 26 21 21 26 20 38 19 26 14 21 2 20 14 19 19 14 20 2Z"];
+// Each style gets its own scene: `shapes` become SVG particles, `scene` adds full-page
+// layers, and the rest is drawn by decorations.css from the per-particle variables.
 const DECORATION_MOTIFS = {
-  petal: { label: "Soft petals drifting on a spring breeze.", count: 18, size: 28, paths: ["M22 2C9 2 1 13 5 25c4 11 15 16 22 8 7-8 5-16 1-19l-4 5 1-8-3-9Z", "M8 27c8-2 13-8 15-18"], viewBox: "0 0 36 40" },
-  cookie: { label: "Little cookies, baked for your Material theme.", count: 10, size: 54, paths: ["M31 4c-1 5 2 8 7 8-1 4 2 7 7 6 1 18-15 28-30 18C0 33-1 16 10 7c6-4 14-5 21-3Z", "M13 13l4-1 1 4-4 2-1-5Zm11 11 4-2 2 4-4 2-2-4ZM9 26l3-1 2 3-4 2-1-4Zm16 9 3-1 1 3-3 1-1-3Z", "M21 10h.1M34 30h.1M18 27h.1M10 20h.1"], viewBox: "0 0 48 48" },
-  star: { label: "A quiet constellation of little stars.", count: 14, size: 32, paths: ["M20 3 24 16 37 20 24 24 20 37 16 24 3 20 16 16 20 3Z", "M33 2v6m-3-3h6"], viewBox: "0 0 40 40" },
-  bubble: { label: "Weightless bubbles catching the light.", count: 10, size: 52, paths: ["M20 3a17 17 0 1 0 0 34 17 17 0 1 0 0-34Z", "M9 17a12 12 0 0 1 8-8"], viewBox: "0 0 40 40" },
-  leaf: { label: "Tiny leaves wandering across your page.", count: 12, size: 38, paths: ["M5 34C0 13 14 2 34 5c1 19-9 34-29 29Z", "M5 34 27 12M13 26l-1-9m8 2 8 1"], viewBox: "0 0 40 40" },
-  confetti: { label: "Floating shapes for a tiny everyday celebration.", count: 14, size: 30, paths: ["M7 5h22v22H7Z", "M10 33h23"], viewBox: "0 0 40 40" },
-  orbit: { label: "Small satellites tracing imaginary orbits.", count: 10, size: 44, paths: ["M20 12a8 8 0 1 0 0 16 8 8 0 1 0 0-16Z", "M3 27C-1 17 29-1 36 9s-27 30-33 18Z"], viewBox: "0 0 40 40" },
-  spark: { label: "Slow sparks and glimmers of light.", count: 14, size: 26, paths: ["M23 2 7 23h11l-3 15 18-23H22l1-13Z"], viewBox: "0 0 40 40" },
-  bit: { label: "A few stray pixels from a friendly console.", count: 14, size: 26, paths: ["M5 5h10v10H5Zm20 10h10v10H25ZM15 25h10v10H15Z"], viewBox: "0 0 40 40" }
+  bokeh: { label: "Soft orbs of light, tinted by your palette.", count: 9, size: 150 },
+  shard: { label: "Bold shapes tumbling by with offset shadows.", count: 12, size: 34, viewBox: "0 0 40 40", shapes: [["M20 5 36 33H4Z"], ["M7 7h26v26H7Z"], ["M20 4a16 16 0 1 0 0 32 16 16 0 1 0 0-32Z"], ["M20 2 38 20 20 38 2 20Z"], ["M4 26a16 16 0 0 1 32 0Z"]] },
+  ripple: { label: "Slow ripples spreading across still water.", count: 5, size: 300 },
+  cookie: { label: "Material shapes: cookies, clovers and flowers.", count: 10, size: 62, viewBox: "0 0 100 100", shapes: M3_SHAPES },
+  moonlit: { label: "A crescent moon, quiet stars and the odd shooting star.", count: 18, size: 13, viewBox: "0 0 40 40", shapes: [SPARKLE], scene: ["moon", "comet"] },
+  starfield: { label: "A sparse field of pinpoint stars.", count: 34, size: 3 },
+  aurora: { label: "Northern lights rippling over the page.", count: 0, size: 0, scene: ["band-a", "band-b", "band-c"] },
+  sunrise: { label: "Morning light with slow, drifting dust motes.", count: 16, size: 7, scene: ["rays"] },
+  circuit: { label: "A quiet dot grid with passing signals.", count: 8, size: 110, scene: ["grid"] },
+  petal: { label: "Soft petals drifting on a spring breeze.", count: 16, size: 36, viewBox: "0 0 40 40", shapes: [
+    ["M20 37C10 31 4 22 6 13c1.5-6.5 7-9.5 11.5-6.5L20 9l2.5-2.5C27 3.5 32.5 6.5 34 13c2 9-4 18-14 24Z", "M20 34c-.8-8-.8-15 0-22"],
+    ["M20 38C12 33 8 24 9 15c1-6 5-10 9-8l2 3 2-3c4-2 8 2 9 8 1 9-3 18-11 23Z", "M20 35c-1-7-1-13 0-20"]
+  ] },
+  horizon: { label: "A neon horizon rolling toward you.", count: 10, size: 16, viewBox: "0 0 40 40", shapes: [SPARKLE], scene: ["floor", "horizon"] },
+  draft: { label: "Drafting marks sketched in, line by line.", count: 9, size: 76, viewBox: "0 0 80 80", shapes: [
+    ["M40 14a26 26 0 1 0 0 52 26 26 0 1 0 0-52Z", "M40 4v20M40 56v20M4 40h20M56 40h20"],
+    ["M6 40h68", "M6 30v20M74 30v20", "M14 35 6 40l8 5M66 35l8 5-8 5"],
+    ["M12 66A54 54 0 0 1 66 12", "M12 66 12 12h54"],
+    ["M12 68V16l52 52Z", "M12 58h10v10"],
+    ["M40 10 66 25v30L40 70 14 55V25Z", "M40 28a12 12 0 1 0 0 24 12 12 0 1 0 0-24Z"]
+  ] },
+  glaze: { label: "Glazed porcelain beads, gently afloat.", count: 11, size: 26 },
+  embers: { label: "Warm embers drifting up from the fire.", count: 22, size: 6, scene: ["glow"] },
+  rain: { label: "Quiet streams of console characters.", count: 14, size: 13, glyphs: "01<>{}[]/=+*#$;:" },
+  trail: { label: "Glowing light trails racing past.", count: 12, size: 240, scene: ["stripes"] }
 };
 
 const SEARCH_ENGINES = {
@@ -454,7 +481,7 @@ async function applyTheme(theme = state.theme) {
 
 function renderDecorations() {
   const layer = elements.themeDecorations;
-  const kind = DECORATION_THEMES[state.theme] || "bubble";
+  const kind = DECORATION_THEMES[state.theme] || "bokeh";
   const motif = DECORATION_MOTIFS[kind];
   elements.enableDecorations.checked = state.decorations;
   elements.decorationHint.textContent = motif.label;
@@ -473,17 +500,28 @@ function renderDecorations() {
     const particle = document.createElement("span");
     particle.className = "theme-particle";
     const duration = 24 + index % 6 * 4;
-    particle.style.setProperty("--x", `${(index * 97 / motif.count + 2) % 98}%`);
+    // Golden-ratio steps scatter particles evenly without visible columns.
+    particle.style.setProperty("--x", `${2 + (index * 61.8 + 13) % 96}%`);
     particle.style.setProperty("--mobile-x", `${(index * 97 / Math.min(motif.count, 9) + 2) % 98}%`);
     particle.style.setProperty("--size", `${motif.size * (.65 + index % 4 * .16)}px`);
     particle.style.setProperty("--duration", `${duration}s`);
     particle.style.setProperty("--delay", `${-duration * ((index * 37 + 17) % 100) / 100}s`);
-    particle.style.setProperty("--rest", `${8 + (index * 31 + 17) % 80}vh`);
+    particle.style.setProperty("--rest", `${6 + (index * 38.2 + 11) % 82}vh`);
     particle.style.setProperty("--turn", `${index * 47 % 360}deg`);
     particle.style.setProperty("--drift", `${index % 2 ? -32 : 32}px`);
-    particle.append(svg(motif.paths, motif.viewBox));
+    particle.style.setProperty("--depth", String((index * 73 + 29) % 100 / 100));
+    if (motif.shapes) particle.append(svg(motif.shapes[index % motif.shapes.length], motif.viewBox));
+    if (motif.glyphs) {
+      particle.textContent = Array.from({ length: 18 }, (_, step) => motif.glyphs[(index * 7 + step * step * 3 + step) % motif.glyphs.length]).join("");
+    }
     layer.append(particle);
   }
+  // Scene layers come after the particles so mobile limits can count particles by position.
+  (motif.scene || []).forEach(name => {
+    const piece = document.createElement("span");
+    piece.className = `theme-scene scene-${name}`;
+    layer.append(piece);
+  });
 }
 
 function normalizeColors(value) {

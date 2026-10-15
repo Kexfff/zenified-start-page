@@ -1,4 +1,6 @@
-/* Tiny, local vector ornaments. The whole layer sits below every page control. */
+/* Tiny, local ornaments. The whole layer sits below every page control.
+   Each motif is styled first as a still scene (what reduced motion shows),
+   then animated only when the system allows motion. */
 .theme-decorations {
   position: fixed;
   inset: 0;
@@ -10,83 +12,416 @@
 }
 
 .theme-decorations[hidden] { display: none; }
+html[data-custom-background="true"] .theme-decorations { opacity: .75; }
+
 .theme-particle {
   position: absolute;
-  top: -100px;
+  z-index: 1;
+  top: var(--rest);
   left: var(--x);
   width: var(--size);
   margin-left: calc(var(--size) / -2);
   color: var(--accent);
-  opacity: .34;
-  animation: decoration-fall var(--duration) var(--delay) linear infinite;
 }
 .theme-particle:nth-child(even) { color: var(--accent-2); }
 .theme-particle svg {
+  display: block;
   width: 100%;
   height: auto;
   overflow: visible;
   fill: currentColor;
   stroke: none;
-  animation: decoration-sway 7s var(--delay) ease-in-out infinite alternate;
+  transform: rotate(var(--turn));
 }
-.theme-particle svg path + path { fill: none; stroke: currentColor; stroke-width: 1; }
+.theme-scene { position: absolute; display: block; }
 
-/* Petals have a notched tip, a translucent vein, and a gentle flutter. */
-.theme-decorations[data-motif="petal"] .theme-particle { opacity: .5; }
-.theme-decorations[data-motif="petal"] svg {
-  filter: drop-shadow(0 2px 3px rgba(var(--accent-rgb), .12));
-  animation-name: decoration-flutter;
+/* Auto: soft out-of-focus orbs of light. */
+[data-motif="bokeh"] .theme-particle {
+  height: var(--size);
+  margin-top: calc(var(--size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .3), rgba(var(--accent-rgb), .12) 42%, transparent 68%);
+  filter: blur(calc(2px + var(--depth) * 8px));
+  opacity: calc(.5 + var(--depth) * .4);
 }
-.theme-decorations[data-motif="petal"] svg path:first-child {
-  fill: color-mix(in srgb, currentColor 60%, var(--surface-solid));
+[data-motif="bokeh"] .theme-particle:nth-child(even) {
+  background: radial-gradient(circle, rgba(var(--accent-2-rgb), .26), rgba(var(--accent-2-rgb), .1) 42%, transparent 68%);
 }
-.theme-decorations[data-motif="petal"] svg path + path { opacity: .35; }
 
-/* A bite out of each biscuit, chocolate chips, and tiny sugar specks. */
-.theme-decorations[data-motif="cookie"] .theme-particle { opacity: .5; }
-.theme-decorations[data-motif="cookie"] svg { animation-duration: 11s; }
-.theme-decorations[data-motif="cookie"] svg path:first-child {
-  fill: color-mix(in srgb, currentColor 20%, #efd3a6);
-  stroke: color-mix(in srgb, currentColor 30%, #bd925d);
-  stroke-width: 1.4;
-}
-.theme-decorations[data-motif="cookie"] svg path:nth-child(2) {
-  fill: color-mix(in srgb, currentColor 25%, #765443);
-  stroke: none;
-}
-.theme-decorations[data-motif="cookie"] svg path:last-child { stroke: #fff5dc; stroke-width: 2; }
+/* Prism: solid geometry with a hard offset shadow in the other color. */
+[data-motif="shard"] .theme-particle { opacity: .62; filter: drop-shadow(4px 4px 0 rgba(var(--accent-2-rgb), .5)); }
+[data-motif="shard"] .theme-particle:nth-child(even) { filter: drop-shadow(4px 4px 0 rgba(var(--accent-rgb), .5)); }
+[data-motif="shard"] .theme-particle:nth-child(5n) { color: var(--text); opacity: .3; }
 
-.theme-decorations[data-motif="bubble"] .theme-particle { animation-name: decoration-rise; opacity: .3; }
-.theme-decorations[data-motif="bubble"] svg path:first-child {
-  fill: color-mix(in srgb, currentColor 8%, transparent);
+/* Still: concentric ripples on calm water. */
+[data-motif="ripple"] .theme-particle,
+[data-motif="ripple"] .theme-particle::before,
+[data-motif="ripple"] .theme-particle::after {
+  border: 1px solid rgba(var(--accent-rgb), .4);
+  border-radius: 50%;
+}
+[data-motif="ripple"] .theme-particle {
+  height: var(--size);
+  margin-top: calc(var(--size) / -2);
+  opacity: .55;
+}
+[data-motif="ripple"] .theme-particle:nth-child(even),
+[data-motif="ripple"] .theme-particle:nth-child(even)::before,
+[data-motif="ripple"] .theme-particle:nth-child(even)::after { border-color: rgba(var(--accent-2-rgb), .4); }
+[data-motif="ripple"] .theme-particle::before,
+[data-motif="ripple"] .theme-particle::after { position: absolute; content: ""; }
+[data-motif="ripple"] .theme-particle::before { inset: 20%; opacity: .7; }
+[data-motif="ripple"] .theme-particle::after { inset: 38%; opacity: .45; }
+
+/* Material: Material 3 shapes in tonal container colors; Elevated lifts them. */
+[data-motif="cookie"] .theme-particle { color: var(--primary-container, rgba(var(--accent-rgb), .25)); opacity: .9; }
+[data-motif="cookie"] .theme-particle:nth-child(3n + 2) { color: var(--secondary-container, rgba(var(--accent-2-rgb), .25)); }
+[data-motif="cookie"] .theme-particle:nth-child(3n) { color: rgba(var(--accent-rgb), .2); }
+html[data-theme="material-dark"] [data-motif="cookie"] .theme-particle { filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .35)); }
+html[data-theme="material-dark"] [data-motif="cookie"] .theme-particle:nth-child(3n) { color: rgba(var(--accent-rgb), .3); }
+
+/* Nocturne: a gold crescent, four-point stars and a rare shooting star. */
+[data-motif="moonlit"] .theme-particle { color: var(--text); opacity: calc(.18 + var(--depth) * .45); }
+[data-motif="moonlit"] .theme-particle:nth-child(3n) { color: var(--accent); }
+[data-motif="moonlit"] .theme-particle svg { transform: none; }
+.scene-moon {
+  top: 10vh;
+  right: 9vw;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  box-shadow: inset 14px -8px 0 0 var(--accent);
+  filter: drop-shadow(0 0 22px rgba(var(--accent-rgb), .45));
+  opacity: .7;
+  transform: rotate(-20deg);
+}
+.scene-comet {
+  top: 14vh;
+  left: 18vw;
+  width: 180px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), .5) 70%, #fff);
+  filter: drop-shadow(0 0 4px rgba(var(--accent-rgb), .8));
+  opacity: 0;
+  transform: rotate(24deg);
+}
+
+/* AMOLED: pinpoint stars on true black. */
+[data-motif="starfield"] .theme-particle {
+  height: var(--size);
+  border-radius: 50%;
+  background: var(--text);
+  opacity: calc(.2 + var(--depth) * .55);
+}
+[data-motif="starfield"] .theme-particle:nth-child(7n) { background: var(--accent); }
+[data-motif="starfield"] .theme-particle:nth-child(5n) { box-shadow: 0 0 6px rgba(255, 255, 255, .55); }
+
+/* Aurora: blurred ribbons with crisp vertical curtains masked over the blur.
+   The blur lives on an inset layer so the curtain mask never clips its soft edge. */
+[data-motif="aurora"] .theme-scene {
+  mix-blend-mode: screen;
+  mask-image:
+    repeating-linear-gradient(90deg, #000 0 2px, rgba(0, 0, 0, .62) 2px 8px),
+    linear-gradient(to bottom, transparent, #000 25%, #000 62%, transparent);
+  mask-composite: intersect;
+  transform: rotate(var(--tilt)) skewY(var(--skew));
+}
+[data-motif="aurora"] .theme-scene::before {
+  position: absolute;
+  inset: 20% 8%;
+  border-radius: 50%;
+  background: var(--band);
+  content: "";
+  filter: blur(38px);
+}
+.scene-band-a {
+  --tilt: -7deg;
+  --skew: -10deg;
+  --band: linear-gradient(100deg, transparent 4%, rgba(var(--accent-rgb), .6) 36%, rgba(var(--accent-2-rgb), .5) 66%, transparent 96%);
+  top: -26vh;
+  left: -24vw;
+  width: 104vw;
+  height: 76vh;
+  opacity: .65;
+}
+.scene-band-b {
+  --tilt: 5deg;
+  --skew: 8deg;
+  --band: linear-gradient(80deg, transparent 4%, rgba(var(--accent-2-rgb), .55) 40%, rgba(var(--accent-rgb), .42) 70%, transparent 96%);
+  top: -18vh;
+  left: 28vw;
+  width: 96vw;
+  height: 66vh;
+  opacity: .5;
+}
+.scene-band-c {
+  --tilt: -2deg;
+  --skew: 3deg;
+  --band: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), .4) 30%, rgba(var(--accent-2-rgb), .4) 60%, transparent);
+  top: -4vh;
+  left: -14vw;
+  width: 128vw;
+  height: 46vh;
+  opacity: .35;
+}
+
+/* Dawn: warm rays from the corner and slow dust motes in the light. */
+.scene-rays {
+  top: -30vh;
+  left: -22vw;
+  width: 120vw;
+  height: 150vh;
+  background: repeating-conic-gradient(from 100deg at 0 0, rgba(var(--accent-2-rgb), .24) 0deg 3.5deg, transparent 3.5deg 9deg);
+  filter: blur(5px);
+  mask-image: radial-gradient(ellipse 85% 75% at 0 0, #000 15%, transparent 72%);
+  opacity: .85;
+  transform-origin: 0 0;
+}
+[data-motif="sunrise"] .theme-particle {
+  height: var(--size);
+  border-radius: 50%;
+  background: rgba(var(--accent-2-rgb), .6);
+  box-shadow: 0 0 8px rgba(var(--accent-2-rgb), .45);
+  opacity: calc(.3 + var(--depth) * .5);
+}
+[data-motif="sunrise"] .theme-particle:nth-child(4n) { background: rgba(var(--accent-rgb), .5); }
+
+/* Slate: a dot grid framing the page, with signals along its rows and columns. */
+.scene-grid {
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(var(--accent-rgb), .38) 1px, transparent 1.6px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(ellipse 72% 66% at 50% 46%, transparent 40%, #000 100%);
+  opacity: .7;
+}
+[data-motif="circuit"] .theme-particle {
+  top: calc(round(var(--rest), 24px) + 11px);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), .95));
+  box-shadow: 0 0 8px rgba(var(--accent-rgb), .55);
+  opacity: .6;
+}
+[data-motif="circuit"] .theme-particle:nth-child(even) {
+  left: calc(round(var(--x), 24px) + 11px);
+  width: 2px;
+  height: var(--size);
+  margin-left: 0;
+  background: linear-gradient(180deg, transparent, rgba(var(--accent-2-rgb), .95));
+  box-shadow: 0 0 8px rgba(var(--accent-2-rgb), .55);
+}
+
+/* Sakura: notched petals with a fine vein; a few float close and soft-focus. */
+[data-motif="petal"] .theme-particle { color: var(--accent); opacity: .62; }
+[data-motif="petal"] .theme-particle:nth-child(3n) { color: color-mix(in srgb, var(--accent) 55%, #fff); }
+[data-motif="petal"] .theme-particle:nth-child(5n) { width: calc(var(--size) * 1.5); filter: blur(1.6px); opacity: .4; }
+[data-motif="petal"] svg { filter: drop-shadow(0 2px 3px rgba(var(--accent-rgb), .14)); }
+[data-motif="petal"] svg path:first-child { fill: color-mix(in srgb, currentColor 62%, var(--surface-solid)); }
+[data-motif="petal"] svg path + path { fill: none; stroke: currentColor; stroke-width: 1; opacity: .4; }
+
+/* Ultraviolet: a glowing synthwave floor, a horizon line and neon stars. */
+[data-motif="horizon"] .theme-particle {
+  top: calc(var(--rest) * .55);
+  opacity: calc(.3 + var(--depth) * .5);
+  filter: drop-shadow(0 0 6px currentColor);
+}
+[data-motif="horizon"] .theme-particle svg { transform: none; }
+.scene-floor {
+  right: -50vw;
+  bottom: -4vh;
+  left: -50vw;
+  height: 62vh;
+  overflow: hidden;
+  mask-image: linear-gradient(to top, #000 15%, transparent 92%);
+  opacity: .5;
+  transform: perspective(80vh) rotateX(56deg);
+  transform-origin: 50% 100%;
+}
+.scene-floor::before {
+  position: absolute;
+  inset: -60px 0 0;
+  background-image:
+    linear-gradient(rgba(var(--accent-rgb), .9) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(var(--accent-rgb), .9) 2px, transparent 2px);
+  background-position: 50% 0;
+  background-size: 100% 60px, 84px 100%;
+  content: "";
+  filter: drop-shadow(0 0 5px rgba(var(--accent-rgb), .9));
+}
+.scene-horizon {
+  right: 0;
+  bottom: 20vh;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 5%, rgba(var(--accent-2-rgb), .9) 50%, transparent 95%);
+  box-shadow: 0 0 22px 5px rgba(var(--accent-2-rgb), .3);
+  opacity: .55;
+}
+
+/* Blueprint: technical marks drawn in hairlines. */
+[data-motif="draft"] .theme-particle { color: var(--accent-2); opacity: .42; }
+[data-motif="draft"] .theme-particle:nth-child(3n) { color: var(--accent); }
+[data-motif="draft"] .theme-particle svg { transform: rotate(round(var(--turn), 90deg)); }
+[data-motif="draft"] svg path {
+  fill: none;
   stroke: currentColor;
-  stroke-width: .7;
+  stroke-width: 1.2;
+  stroke-dasharray: 320;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
-.theme-decorations[data-motif="bubble"] svg path + path { stroke-width: 1.6; opacity: .65; }
-.theme-decorations[data-motif="leaf"] svg path:first-child { fill: color-mix(in srgb, currentColor 40%, var(--surface-solid)); }
-.theme-decorations[data-motif="leaf"] svg path + path { opacity: .65; }
 
-.theme-decorations[data-motif="star"] .theme-particle {
-  top: var(--rest);
-  animation: decoration-twinkle 9s var(--delay) ease-in-out infinite;
+/* Porcelain: glossy beads with a highlight and a soft cast shadow. */
+[data-motif="glaze"] .theme-particle {
+  --glaze: var(--accent);
+  height: var(--size);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, .95) 0 9%, rgba(255, 255, 255, 0) 28%),
+    radial-gradient(circle at 50% 58%, color-mix(in srgb, var(--glaze) 50%, #fff), var(--glaze) 78%);
+  box-shadow: inset -2px -3px 6px rgba(0, 0, 0, .14), 0 7px 14px rgba(var(--accent-rgb), .2);
+  opacity: .72;
 }
-.theme-decorations[data-motif="star"] svg { animation: none; transform: rotate(var(--turn)); }
-html[data-theme="ultraviolet"] .theme-decorations[data-motif="star"] svg { filter: drop-shadow(0 0 8px currentColor); }
-.theme-decorations[data-motif="confetti"] .theme-particle:nth-child(3n) svg { clip-path: polygon(0 0, 100% 50%, 0 100%); }
-.theme-decorations[data-motif="confetti"] .theme-particle:nth-child(3n + 1) svg { border-radius: 50%; overflow: hidden; }
-.theme-decorations[data-motif="orbit"] .theme-particle {
-  top: var(--rest);
-  opacity: .25;
-  animation: decoration-hover var(--duration) var(--delay) ease-in-out infinite;
-}
-.theme-decorations[data-motif="orbit"] svg path:first-child { fill: none; stroke: currentColor; }
-.theme-decorations[data-motif="orbit"] svg path + path { stroke: var(--accent-2); }
-.theme-decorations[data-motif="spark"] svg { filter: drop-shadow(0 0 5px currentColor); }
-.theme-decorations[data-motif="bit"] svg { animation: none; }
-html[data-custom-background="true"] .theme-decorations { opacity: .7; }
+[data-motif="glaze"] .theme-particle:nth-child(even) { --glaze: var(--accent-2); }
+[data-motif="glaze"] .theme-particle:nth-child(3n) { --glaze: color-mix(in srgb, var(--surface-solid) 85%, var(--accent)); }
 
-.theme-decorations[data-paused="true"] .theme-particle,
-.theme-decorations[data-paused="true"] svg { animation-play-state: paused; }
+/* Ember: glowing sparks over a low warm glow. */
+.scene-glow {
+  right: -10vw;
+  bottom: -20vh;
+  left: -10vw;
+  height: 46vh;
+  background: radial-gradient(ellipse at 50% 100%, rgba(var(--accent-rgb), .24), transparent 70%);
+}
+[data-motif="embers"] .theme-particle {
+  --ember: var(--accent-rgb);
+  height: var(--size);
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff4cf 0 18%, rgba(var(--ember), 1) 46%, rgba(var(--ember), 0) 72%);
+  box-shadow: 0 0 10px 2px rgba(var(--ember), .45);
+  opacity: calc(.35 + var(--depth) * .55);
+}
+[data-motif="embers"] .theme-particle:nth-child(3n) { --ember: var(--accent-2-rgb); }
+
+/* Terminal: faint vertical streams of console characters. */
+[data-motif="rain"] .theme-particle {
+  width: auto;
+  margin-left: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  line-height: 1;
+  mask-image: linear-gradient(to bottom, transparent, #000 80%);
+  opacity: calc(.14 + var(--depth) * .26);
+  text-orientation: upright;
+  text-shadow: 0 0 8px rgba(var(--accent-rgb), .6);
+  writing-mode: vertical-rl;
+}
+[data-motif="rain"] .theme-particle:nth-child(4n) { color: var(--accent-2); }
+
+/* Redline: glowing light trails over softly lit racing stripes. */
+.scene-stripes {
+  inset: 0;
+  background-image: repeating-linear-gradient(135deg, transparent 0 55px, rgba(var(--accent-rgb), .06) 56px, rgba(var(--accent-rgb), .26) 58px 59px, rgba(var(--accent-rgb), .06) 61px, transparent 62px);
+  filter: drop-shadow(0 0 3px rgba(var(--accent-rgb), .4));
+  mask-image: radial-gradient(ellipse 80% 70% at 70% 0, #000, transparent 75%);
+  opacity: .7;
+}
+/* The glowing stripes replace the page's plain ones while flourishes are on. */
+html[data-theme="redline"] body:has(.theme-decorations[data-motif="trail"]:not([hidden])) {
+  background-image:
+    radial-gradient(ellipse at 78% -14%, rgba(var(--decor-primary-rgb, 255, 50, 43), .2), transparent 34rem),
+    radial-gradient(circle at 4% 92%, rgba(var(--decor-secondary-rgb, 255, 209, 92), .07), transparent 25rem);
+}
+[data-motif="trail"] .theme-particle {
+  --trail: var(--accent-rgb);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(var(--trail), .9) 82%, #fff);
+  box-shadow: 0 0 8px 1px rgba(var(--trail), .55), 0 0 24px 2px rgba(var(--trail), .25);
+  opacity: .55;
+  transform: rotate(-8deg);
+}
+[data-motif="trail"] .theme-particle:nth-child(3n) { --trail: var(--accent-2-rgb); }
+[data-motif="trail"] .theme-particle:nth-child(4n) { height: 1px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Falling motifs start above the page and drift down through it. */
+  [data-motif="shard"] .theme-particle,
+  [data-motif="cookie"] .theme-particle,
+  [data-motif="petal"] .theme-particle {
+    top: -140px;
+    animation: decoration-fall var(--duration) var(--delay) linear infinite;
+  }
+  [data-motif="shard"] .theme-particle svg,
+  [data-motif="cookie"] .theme-particle svg { animation: decoration-spin calc(var(--duration) * 1.4) var(--delay) linear infinite; }
+  [data-motif="cookie"] .theme-particle { animation-duration: calc(var(--duration) * 1.3); }
+  [data-motif="petal"] .theme-particle svg { animation: decoration-flutter 6s var(--delay) ease-in-out infinite alternate; }
+
+  [data-motif="bokeh"] .theme-particle { animation: decoration-float var(--duration) var(--delay) ease-in-out infinite alternate; }
+  [data-motif="ripple"] .theme-particle { animation: decoration-ripple calc(var(--duration) * .55) var(--delay) ease-out infinite; }
+  [data-motif="moonlit"] .theme-particle svg,
+  [data-motif="horizon"] .theme-particle svg { animation: decoration-twinkle calc(3s + var(--depth) * 6s) var(--delay) ease-in-out infinite alternate; }
+  [data-motif="starfield"] .theme-particle { animation: decoration-blink calc(2.5s + var(--depth) * 5s) var(--delay) ease-in-out infinite alternate; }
+  .scene-comet { animation: decoration-comet 17s 4s ease-in infinite; }
+  .scene-moon { animation: decoration-glow 9s ease-in-out infinite alternate; }
+
+  .scene-band-a { animation: decoration-aurora 23s ease-in-out infinite alternate; }
+  .scene-band-b { animation: decoration-aurora 29s -9s ease-in-out infinite alternate-reverse; }
+  .scene-band-c { animation: decoration-aurora 35s -4s ease-in-out infinite alternate; }
+
+  .scene-rays { animation: decoration-rays 26s ease-in-out infinite alternate; }
+  [data-motif="sunrise"] .theme-particle { animation: decoration-mote var(--duration) var(--delay) ease-in-out infinite alternate; }
+
+  [data-motif="circuit"] .theme-particle {
+    left: 0;
+    margin-left: 0;
+    animation: decoration-signal-x calc(var(--duration) * .5) var(--delay) linear infinite;
+  }
+  [data-motif="circuit"] .theme-particle:nth-child(even) {
+    top: 0;
+    left: calc(round(var(--x), 24px) + 11px);
+    animation-name: decoration-signal-y;
+  }
+
+  .scene-floor::before { animation: decoration-floor 2.6s linear infinite; }
+  .scene-horizon { animation: decoration-glow 7s ease-in-out infinite alternate; }
+
+  [data-motif="draft"] svg path { animation: decoration-draft calc(var(--duration) * .7) var(--delay) ease-in-out infinite; }
+
+  [data-motif="glaze"] .theme-particle { animation: decoration-bob calc(var(--duration) * .45) var(--delay) ease-in-out infinite alternate; }
+
+  [data-motif="embers"] .theme-particle {
+    top: auto;
+    bottom: -20px;
+    animation: decoration-ember calc(var(--duration) * .5) var(--delay) linear infinite;
+  }
+  .scene-glow { animation: decoration-glow 5s ease-in-out infinite alternate; }
+
+  [data-motif="rain"] .theme-particle {
+    top: -260px;
+    animation: decoration-rain calc(var(--duration) * .7) var(--delay) linear infinite;
+  }
+
+  [data-motif="trail"] .theme-particle {
+    left: 0;
+    margin-left: 0;
+    animation: decoration-trail calc(var(--duration) * .4) var(--delay) cubic-bezier(.5, 0, .7, 1) infinite;
+  }
+  .scene-stripes { animation: decoration-glow 6s ease-in-out infinite alternate; }
+}
+
+/* Still trails are thinned out so they never stack up behind the controls. */
+@media (prefers-reduced-motion: reduce) {
+  [data-motif="trail"] .theme-particle { opacity: .35; }
+  [data-motif="trail"] .theme-particle:nth-child(n + 6) { display: none; }
+}
+
+.theme-decorations[data-paused="true"] *,
+.theme-decorations[data-paused="true"] *::before,
+.theme-decorations[data-paused="true"] *::after { animation-play-state: paused; }
 
 .flourishes-toggle { margin-top: 18px; }
 .flourishes-toggle strong { color: var(--text); font-size: 13px; }
@@ -94,42 +429,98 @@ html[data-custom-background="true"] .theme-decorations { opacity: .7; }
 
 @keyframes decoration-fall {
   from { transform: translate3d(0, -40px, 0); }
-  to { transform: translate3d(var(--drift), calc(100vh + 200px), 0); }
+  to { transform: translate3d(var(--drift), calc(100vh + 260px), 0); }
 }
-@keyframes decoration-rise {
-  from { transform: translate3d(0, calc(100vh + 200px), 0); }
-  to { transform: translate3d(var(--drift), -40px, 0); }
-}
-@keyframes decoration-sway {
-  from { transform: translateX(-12px) rotate(var(--turn)); }
-  to { transform: translateX(12px) rotate(calc(var(--turn) + 50deg)); }
+@keyframes decoration-spin {
+  from { transform: rotate(var(--turn)); }
+  to { transform: rotate(calc(var(--turn) + 360deg)); }
 }
 @keyframes decoration-flutter {
   from { transform: translateX(-16px) rotate(var(--turn)) rotateY(0deg); }
-  to { transform: translateX(16px) rotate(calc(var(--turn) + 80deg)) rotateY(55deg); }
+  to { transform: translateX(16px) rotate(calc(var(--turn) + 80deg)) rotateY(60deg); }
+}
+@keyframes decoration-float {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(calc(var(--drift) * 2), -44px, 0) scale(1.12); }
+}
+@keyframes decoration-ripple {
+  0% { opacity: 0; transform: scale(.25); }
+  18% { opacity: .7; }
+  100% { opacity: 0; transform: scale(1.25); }
 }
 @keyframes decoration-twinkle {
-  0%, 100% { opacity: .12; transform: scale(.8); }
-  50% { opacity: .42; transform: scale(1); }
+  from { opacity: .25; transform: scale(.7); }
+  to { opacity: 1; transform: scale(1); }
 }
-@keyframes decoration-hover {
-  0%, 100% { transform: translate3d(0, -8px, 0); }
-  50% { transform: translate3d(var(--drift), 8px, 0); }
+@keyframes decoration-blink {
+  from { opacity: .06; }
+  to { opacity: calc(.25 + var(--depth) * .65); }
+}
+@keyframes decoration-comet {
+  0% { opacity: 0; transform: rotate(24deg) translateX(-12vw); }
+  3% { opacity: .9; }
+  9% { opacity: 0; transform: rotate(24deg) translateX(46vw); }
+  100% { opacity: 0; transform: rotate(24deg) translateX(46vw); }
+}
+@keyframes decoration-glow {
+  from { opacity: .45; }
+  to { opacity: .85; }
+}
+@keyframes decoration-aurora {
+  from { transform: translateX(-5vw) rotate(var(--tilt)) skewY(var(--skew)) scaleY(.9); }
+  to { transform: translateX(6vw) rotate(calc(var(--tilt) * -.4)) skewY(calc(var(--skew) * .3)) scaleY(1.18); }
+}
+@keyframes decoration-rays {
+  from { opacity: .6; transform: rotate(-2deg); }
+  to { opacity: 1; transform: rotate(2.5deg); }
+}
+@keyframes decoration-mote {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(calc(var(--drift) * 1.6), -56px, 0); }
+}
+@keyframes decoration-signal-x {
+  0% { opacity: 0; transform: translateX(-20vw); }
+  4%, 34% { opacity: .75; }
+  38%, 100% { opacity: 0; transform: translateX(115vw); }
+}
+@keyframes decoration-signal-y {
+  0% { opacity: 0; transform: translateY(-20vh); }
+  4%, 34% { opacity: .75; }
+  38%, 100% { opacity: 0; transform: translateY(115vh); }
+}
+@keyframes decoration-floor {
+  from { transform: translateY(0); }
+  to { transform: translateY(60px); }
+}
+@keyframes decoration-draft {
+  0% { opacity: 0; stroke-dashoffset: 320; }
+  8% { opacity: 1; }
+  45%, 82% { opacity: 1; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
+}
+@keyframes decoration-bob {
+  from { transform: translate3d(0, -14px, 0); }
+  to { transform: translate3d(calc(var(--drift) * .4), 14px, 0); }
+}
+@keyframes decoration-ember {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(1); }
+  8% { opacity: 1; }
+  50% { transform: translate3d(var(--drift), -52vh, 0) scale(.85); }
+  100% { opacity: 0; transform: translate3d(calc(var(--drift) * -.6), -100vh, 0) scale(.35); }
+}
+@keyframes decoration-rain {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(100vh + 300px)); }
+}
+@keyframes decoration-trail {
+  0% { opacity: 0; transform: rotate(-8deg) translateX(-30vw); }
+  3%, 20% { opacity: .8; }
+  24%, 100% { opacity: 0; transform: rotate(-8deg) translateX(125vw); }
 }
 
 @media (max-width: 520px) {
   .theme-particle:nth-child(n + 10) { display: none; }
-  .theme-particle { left: var(--mobile-x); width: calc(var(--size) * .8); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .theme-decorations .theme-particle {
-    top: var(--rest);
-    animation: none !important;
-    transform: none;
-    opacity: .3;
-  }
-  .theme-decorations .theme-particle svg {
-    animation: none !important;
-    transform: rotate(var(--turn));
-  }
+  .theme-particle { left: var(--mobile-x); }
+  [data-motif="starfield"] .theme-particle:nth-child(n + 10):nth-child(-n + 22) { display: block; }
+  .scene-moon { right: 6vw; width: 48px; height: 48px; box-shadow: inset 10px -6px 0 0 var(--accent); }
 }
