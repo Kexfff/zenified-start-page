@@ -70,6 +70,6 @@ Run `node --test tests/*.test.cjs` for the regression checks. They cover picture
 
 ## Package for submission
 
-Run `python3 scripts/package.py` to create `dist/zenified-start-page-1.5.0.zip`. The ZIP contains the manifest at its root, HTML, CSS, JavaScript, icon, and license. Development files, screenshots, tests, and credentials are excluded. Generated archives are ignored by Git.
+Run `python3 scripts/package.py` to create `dist/zenified-start-page-1.6.0.zip`. The ZIP contains the manifest at its root, HTML, CSS, JavaScript, icon, and license. Development files, screenshots, tests, and credentials are excluded. Generated archives are ignored by Git.
 
 Upload the ZIP as a new version of the existing add-on on Mozilla Add-ons. The package contains readable source with no build step, minification, or third-party libraries. Mozilla signs the submitted extension before it can be installed normally in Firefox.
