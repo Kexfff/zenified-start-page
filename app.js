@@ -397,8 +397,8 @@ async function applyAutoTheme(applicationId) {
   elements.root.style.colorScheme = isDark ? "dark" : "light";
   setAutoProperty("--bg", hexColor(background));
   setAutoProperty("--bg-rgb", rgbString(background));
-  setAutoProperty("--surface", `rgba(${rgbString(text)}, ${isDark ? 0.052 : 0.28})`);
-  setAutoProperty("--surface-strong", `rgba(${rgbString(text)}, ${isDark ? 0.09 : 0.48})`);
+  setAutoProperty("--surface", isDark ? `rgba(${rgbString(text)}, 0.052)` : "rgba(255, 255, 255, 0.56)");
+  setAutoProperty("--surface-strong", isDark ? `rgba(${rgbString(text)}, 0.09)` : "rgba(255, 255, 255, 0.84)");
   setAutoProperty("--surface-solid", hexColor(surfaceSolid));
   setAutoProperty("--border", `rgba(${rgbString(text)}, ${isDark ? 0.09 : 0.11})`);
   setAutoProperty("--border-strong", `rgba(${rgbString(text)}, ${isDark ? 0.17 : 0.2})`);

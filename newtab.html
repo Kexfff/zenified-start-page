@@ -98,12 +98,14 @@
             <button class="round-action" id="focusReset" type="button" aria-label="Reset focus timer" title="Reset timer">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8V4m0 0h4M5 4l3.2 3.2A7 7 0 1 1 6 15"/></svg>
             </button>
-            <button class="focus-toggle" id="focusToggle" type="button" aria-label="Start focus timer">
-              <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
-              <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"/></svg>
-            </button>
+            <div class="focus-dial">
+              <div class="focus-progress" id="focusProgress" aria-hidden="true"></div>
+              <button class="focus-toggle" id="focusToggle" type="button" aria-label="Start focus timer">
+                <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5V7Z"/></svg>
+                <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7v10M15 7v10"/></svg>
+              </button>
+            </div>
           </div>
-          <div class="focus-progress" id="focusProgress" aria-hidden="true"></div>
         </article>
 
         <article class="widget note-widget">

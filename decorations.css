@@ -89,8 +89,8 @@ html[data-custom-background="true"] .theme-decorations { opacity: .7; }
 .theme-decorations[data-paused="true"] svg { animation-play-state: paused; }
 
 .flourishes-toggle { margin-top: 18px; }
-.flourishes-toggle strong { color: var(--text); font-size: 11px; }
-.decoration-help { margin: 8px 0 0; color: var(--faint); font-size: 10px; line-height: 1.6; }
+.flourishes-toggle strong { color: var(--text); font-size: 13px; }
+.decoration-help { margin: 10px 2px 0; color: var(--faint); font-size: 12px; line-height: 1.55; }
 
 @keyframes decoration-fall {
   from { transform: translate3d(0, -40px, 0); }
